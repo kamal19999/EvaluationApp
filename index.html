@@ -2365,120 +2365,5 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-
-
-
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://openfpcdn.io/fingerprintjs/v4"></script>
-
-<script>
-    // 🔴🔴 تنبيه: تأكد أن المفتاح هنا يبدأ بـ eyJ وعادة ما يكون طويلاً 🔴🔴
-    const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co'; 
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0'; 
-    
-    // تصحيح اسم المتغير لتجنب التعارض مع المكتبة
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // دالة التشغيل الرئيسية
-    async function initApp() {
-        try {
-            // 1. هل المستخدم مسجل دخول؟
-            const { data: { user } } = await supabaseClient.auth.getUser();
-
-            if (!user) {
-                // حفظ الرابط الحالي للعودة إليه
-                window.location.href = 'login.html';
-                return;
-            }
-
-            // 2. تحديث بيانات المستخدم عند الاتصال
-            if (navigator.onLine) {
-                const { error } = await supabaseClient.from('profiles').upsert({
-                    id: user.id,
-                    email: user.email,
-                    // نتأكد من وجود Metadata قبل إرسالها لتجنب الأخطاء
-                    full_name: user.user_metadata ? user.user_metadata.full_name : 'مستخدم',
-                    last_sync: new Date().toISOString()
-                }, { onConflict: 'id' });
-                
-                if (error) console.error("خطأ في تحديث البيانات:", error);
-            }
-
-            // 3. جلب بيانات الملف الشخصي
-            let { data: profile, error } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (error || !profile) {
-                console.log("جاري إنشاء بروفايل جديد...");
-                return; // قد يكون البروفايل قيد الإنشاء
-            }
-
-            // 4. الحسابات الزمنية
-            const now = new Date();
-            const regDate = new Date(profile.created_at);
-            
-            // تصحيح منطق الأوفلاين: إذا لم توجد قيمة سابقة، نعتبر الوقت الحالي هو آخر مزامنة
-            const storedDate = localStorage.getItem('last_sync_local');
-            const lastSyncLocal = storedDate ? new Date(storedDate) : now;
-
-            // حساب الفرق بالأيام
-            const daysSinceRegistration = Math.ceil((now - regDate) / (1000 * 60 * 60 * 24));
-            const daysOffline = Math.ceil((now - lastSyncLocal) / (1000 * 60 * 60 * 24));
-
-            // 5. منطق الحجب (Security Logic)
-
-            // أ) انتهاء الفترة التجريبية (15 يوماً)
-            if (daysSinceRegistration > 15 && profile.is_active === false) {
-                blockAccess("عذراً، انتهت فترتك التجريبية المجانية (15 يوماً).", user.id);
-                return;
-            }
-
-            // ب) تجاوز 5 أيام بدون إنترنت
-            if (!navigator.onLine && daysOffline > 5) {
-                blockAccess("يرجى الاتصال بالإنترنت للتحقق من صلاحية اشتراكك.", user.id);
-                return;
-            }
-
-            // إذا وصلنا هنا، فالوضع سليم -> نحدث التخزين المحلي
-            if (navigator.onLine) {
-                localStorage.setItem('last_sync_local', now.toISOString());
-            }
-
-        } catch (err) {
-            console.error("حدث خطأ غير متوقع:", err);
-        }
-    }
-
-    // دالة إظهار شاشة القفل (تقوم بمسح التطبيق وإظهار التحذير)
-    function blockAccess(message, userId) {
-        document.body.innerHTML = `
-            <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:'Cairo', sans-serif; background:#fff0f0; direction:rtl;">
-                <h1 style="color:#d32f2f; font-size:24px; margin-bottom:10px;">⛔ توقف التطبيق</h1>
-                <p style="font-size:18px; margin:20px; color:#555;">${message}</p>
-                
-                <a href="https://wa.me/9665XXXXXXXX?text=مرحباً، أريد تفعيل حسابي رقم: ${userId}" 
-                   style="background:#25D366; color:white; padding:12px 30px; text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                   <span style="margin-left:8px;">📱</span> تواصل عبر واتساب للتفعيل
-                </a>
-                
-                <div style="margin-top:40px; background:white; padding:15px; border-radius:8px; border:1px solid #ddd;">
-                    <p style="color:#888; font-size:12px; margin-bottom:5px;">رقم الحساب (ID):</p>
-                    <code style="background:#eee; padding:5px 10px; border-radius:4px; font-family:monospace;">${userId}</code>
-                </div>
-            </div>
-        `;
-    }
-
-    // تشغيل النظام
-    initApp();
-</script>
-
-
 </body>
 </html>
