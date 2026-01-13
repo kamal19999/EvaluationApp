@@ -29,9 +29,9 @@
 <script>
     // 🔴🔴 هام جداً: استبدل القيم التالية ببيانات مشروعك من Supabase 🔴🔴
     const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_3C5cYX5KxHTWzQN44IzlLA_yZzEumVG'; 
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0'; 
 
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     async function signInWithGoogle() {
         // سيعيد التوجيه إلى الصفحة الرئيسية بعد الدخول
