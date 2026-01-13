@@ -2365,5 +2365,106 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://openfpcdn.io/fingerprintjs/v4"></script>
+
+<script>
+    // 🔴🔴 استبدل القيم هنا أيضاً ببيانات مشروعك 🔴🔴
+    const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_3C5cYX5KxHTWzQN44IzlLA_yZzEumVG';
+    
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // دالة التشغيل الرئيسية
+    async function initApp() {
+        // 1. هل المستخدم مسجل دخول؟
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            // غير مسجل؟ اذهب لصفحة الدخول
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // 2. تسجيل بيانات المستخدم (الاسم والإيميل) تلقائياً في الجدول
+        // هذا يضمن تحديث البيانات كل مرة يدخل فيها
+        await supabase.from('profiles').upsert({
+            id: user.id,
+            email: user.email,
+            full_name: user.user_metadata.full_name,
+            last_sync: new Date().toISOString() // تحديث وقت الظهور
+        }, { onConflict: 'id' }); // لا تنشئ جديداً إذا كان موجوداً، بل حدثه
+
+        // 3. جلب حالة الاشتراك وتاريخ التسجيل
+        let { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+
+        // 4. الحسابات الزمنية
+        const now = new Date();
+        const regDate = new Date(profile.created_at); // تاريخ التسجيل
+        const lastSyncLocal = new Date(localStorage.getItem('last_sync_local') || profile.last_sync); // للمقارنة الأوفلاين
+
+        // حساب الفرق بالأيام (للتجربة المجانية)
+        const daysSinceRegistration = Math.ceil((now - regDate) / (1000 * 60 * 60 * 24));
+        
+        // حساب الفرق (للأوفلاين)
+        const daysOffline = Math.ceil((now - lastSyncLocal) / (1000 * 60 * 60 * 24));
+
+        // 5. منطق الحجب (The Logic)
+        
+        // أ) هل انتهت الـ 15 يوماً والحساب غير مفعل يدوياً؟
+        if (daysSinceRegistration > 15 && profile.is_active === false) {
+            blockAccess("عذراً، انتهت فترتك التجريبية (15 يوماً).", user.id);
+            return;
+        }
+
+        // ب) هل مر 5 أيام دون إنترنت؟
+        if (!navigator.onLine && daysOffline > 5) {
+            blockAccess("يرجى الاتصال بالإنترنت للتحقق من صلاحية اشتراكك.", user.id);
+            return;
+        }
+
+        // إذا وصلنا هنا، فالمستخدم وضعه سليم
+        // نخزن وقت آخر ظهور محلياً
+        if (navigator.onLine) {
+            localStorage.setItem('last_sync_local', now.toISOString());
+        }
+        
+        // هنا يمكنك إضافة كود بصمة الجهاز FingerprintJS لمنع تعدد الحسابات (خطوة متقدمة)
+    }
+
+    // دالة إظهار شاشة القفل
+    function blockAccess(message, userId) {
+        document.body.innerHTML = `
+            <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:sans-serif; background:#fff0f0;">
+                <h1 style="color:#d32f2f;">⛔ توقف التطبيق</h1>
+                <p style="font-size:18px; margin:20px;">${message}</p>
+                
+                <a href="https://wa.me/9665XXXXXXXX?text=مرحباً، أريد تفعيل حسابي رقم: ${userId}" 
+                   style="background:#25D366; color:white; padding:15px 30px; text-decoration:none; border-radius:50px; font-weight:bold; font-size:16px;">
+                   تواصل عبر واتساب للتفعيل
+                </a>
+                
+                <p style="margin-top:30px; color:#666; font-size:12px;">رقم الحساب (ID):<br>${userId}</p>
+            </div>
+        `;
+    }
+
+    // تشغيل النظام
+    initApp();
+</script>
+
+
+
+
+
 </body>
 </html>

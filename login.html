@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - تطبيق التقييم</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f9; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
+        h2 { color: #333; margin-bottom: 20px; }
+        .google-btn { background: white; color: #444; border: 1px solid #ddd; border-radius: 5px; padding: 12px; width: 100%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .google-btn:hover { background-color: #f8f8f8; border-color: #ccc; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>أهلاً بك في تطبيق التقييم</h2>
+    <p>سجل دخولك لبدء فترتك التجريبية المجانية (15 يوماً)</p>
+    
+    <button onclick="signInWithGoogle()" class="google-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="20">
+        تسجيل الدخول باستخدام Google
+    </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    // 🔴🔴 هام جداً: استبدل القيم التالية ببيانات مشروعك من Supabase 🔴🔴
+    const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_3C5cYX5KxHTWzQN44IzlLA_yZzEumVG'; 
+
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    async function signInWithGoogle() {
+        // سيعيد التوجيه إلى الصفحة الرئيسية بعد الدخول
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/index.html'
+            }
+        });
+        if (error) alert("حدث خطأ: " + error.message);
+    }
+</script>
+
+</body>
+</html>
