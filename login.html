@@ -35,7 +35,7 @@
 
     async function signInWithGoogle() {
         // سيعيد التوجيه إلى الصفحة الرئيسية بعد الدخول
-        const { error } = await supabase.auth.signInWithOAuth({
+        const { error } = await supabaseClient.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: window.location.origin + '/index.html'
