@@ -1,5 +1,0 @@
-{
-  "name": "Smart Evaluation System",
-  "description": "Employee evaluation system with Google Authentication, Supabase integration, and trial period management.",
-  "requestFramePermissions": []
-}
