@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام التقييم الذكي - كمال الخطابي</title>
+    <title>نظام تقييم الموظفين </title>
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -52,6 +52,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Driver.js (For Tour) -->
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css"/>
 
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; }
@@ -346,9 +350,9 @@
         // --- Translations ---
         const translations = {
             ar: {
-                title: "نظام التقييم الذكي",
+                title: "نظام تقييم الموظفين",
                 login_title: "تسجيل الدخول",
-                trial_message: "سجل في نظام التقييم لتستمتع بفترة تجريبية لمدة 15 يوم",
+                trial_message: "سجل في نظام تقييم الموظفين لتستمتع بفترة تجريبية لمدة 15 يوم",
                 google_signin: "تسجيل الدخول عبر جوجل",
                 signing_in: "جاري التسجيل...",
                 login_error: "حدث خطأ في التسجيل. يرجى المحاولة مرة أخرى.",
@@ -361,7 +365,7 @@
                 logout: "تسجيل الخروج",
                 welcome_desc: "مرحباً بك في النظام الأكثر دقة وسهولة لإدارة التقييمات.\nيهدف هذا التطبيق لتبسيط عملية الرصد والتحليل للحصول على نتائج دقيقة وقابلة للتطوير.",
                 start: "موافق، لنبدأ",
-                dev_by: "تطوير كمال الخطابي 007781414133",
+                dev_by: "تطوير كمال الخطابي 00967781414133",
                 setup_title: "إعداد التقييم",
                 step1: "1. البنود",
                 step2: "2. الأسماء",
@@ -378,7 +382,7 @@
                 logo: "شعار الجهة",
                 start_eval: "ابدأ التقييم",
                 help_guide: "دليل الاستخدام",
-                help_text: "قم برفع ملف البنود وملف الأسماء.\nيدعم النظام قراءة ملفات Excel حتى لو كانت العناوين مختلفة قليلاً.\nاستخدم زر \"حفظ المسودة\" للحفاظ على عملك في حال انقطاع الانترنت أو إغلاق المتصفح.",
+                help_text: "أهلاً بك في نظام التقييم الشامل. إليك خطوات الاستخدام:\n\nمرحلة الإعداد:\nقم برفع ملف البنود (Excel) أو أدخلها يدوياً.\nقم برفع ملف الأسماء (Excel) للموظفين.\nحدد الدرجة العظمى للتقييم (مثلاً من 5 أو 10).\nيمكنك إضافة شعار واسم الجهة ليظهر في التقارير.\n\nمرحلة التقييم:\nسيظهر لك بند واحد في كل شاشة، قم بتقييم الجميع عليه.\nاستخدم زر (تطبيق على الكل) لتعميم درجة واحدة بسرعة.\nاستخدم زر (حفظ مسودة) بشكل دوري لضمان عدم ضياع عملك.\nيمكنك كتابة ملاحظات خاصة لكل موظف عبر أيقونة الملاحظات.\n\nالنتائج والتقارير:\nالجدول: لعرض الدرجات التفصيلية مع إمكانية البحث والفلترة.\nالتحليل: لعرض الرسوم البيانية وأفضل/أقل أداء.\nاضغط على اسم أي موظف لعرض وطباعة بطاقته الفردية.\n\nالتصدير:\nيمكنك استخراج النتائج كملف Excel شامل.\nيمكنك طباعة التقارير والبطاقات كملفات PDF.\n\nلأي استفسار أو دعم فني:\nكمال الخطابي\nkamalalkhtabi@gmail.com \nللاتصال 00967781414133",
                 draft_found: "يوجد تقييم محفوظ سابقاً (مسودة)، هل تريد استكماله؟",
                 restore_draft: "استرجاع المسودة",
                 delete_draft: "حذف المسودة",
@@ -465,6 +469,12 @@
                 report_prep: "إعداد:",
                 report_title_default: "تقرير التقييم",
                 detailed_results_title: "النتائج التفصيلية لتقييم الموظفين",
+                start_tour: "بدء الجولة التعريفية",
+                tour_step1_desc: "هنا تقوم برفع ملف Excel الذي يحتوي على البنود/الأسئلة التي سيتم التقييم بناءً عليها.",
+                tour_step2_desc: "هنا تقوم برفع ملف Excel الذي يحتوي على أسماء الموظفين/الطلاب المراد تقييمهم.",
+                tour_step3_desc: "حدد الدرجة العظمى للتقييم (مثلاً 5 أو 10) ليتم حساب النسب المئوية بدقة.",
+                tour_step4_desc: "اختياري: يمكنك إضافة اسم الجهة وشعارها ليظهر في التقارير المطبوعة.",
+                tour_start_desc: "بعد إكمال الخطوات السابقة، اضغط هنا لبدء عملية التقييم.",
                 excellent: "ممتاز",
                 very_good: "جيد جداً",
                 good: "جيد",
@@ -472,7 +482,7 @@
                 weak: "ضعيف"
             },
             en: {
-                title: "Smart Evaluation System",
+                title: "Employee Evaluation System",
                 login_title: "Login",
                 trial_message: "Register in the evaluation system to enjoy a 15-day trial period",
                 google_signin: "Sign in with Google",
@@ -487,7 +497,7 @@
                 logout: "Logout",
                 welcome_desc: "Welcome to the most accurate and easy-to-use evaluation management system.\nThis app aims to simplify tracking and analysis for accurate and scalable results.",
                 start: "OK, Let's Start",
-                dev_by: "Developed by Kamal Al-Khattabi 007781414133",
+                dev_by: "Developed by Kamal Al-Khattabi 00967781414133",
                 setup_title: "Evaluation Setup",
                 step1: "1. Items",
                 step2: "2. Names",
@@ -504,7 +514,7 @@
                 logo: "Organization Logo",
                 start_eval: "Start Evaluation",
                 help_guide: "User Guide",
-                help_text: "Upload Items and Names files.\nThe system supports Excel files even with slightly different headers.\nUse 'Save Draft' to keep your work in case of internet loss or browser closure.",
+                help_text: "Welcome to the Comprehensive Evaluation System. Here are the steps:\n\nSetup Phase:\nUpload Items file (Excel) or enter manually.\nUpload Names file (Excel).\nSet Max Score (e.g., 5 or 10).\nYou can add an organization logo and name.\n\nEvaluation Phase:\nOne item appears per screen, rate everyone on it.\nUse 'Apply to All' for speed.\nUse 'Save Draft' regularly.\nYou can add notes for each person.\n\nResults & Reports:\nTable: For detailed scores with search/filter.\nAnalysis: For charts and best/worst performance.\nClick any name to view/print their card.\n\nExport:\nExport results as Excel.\nPrint reports and cards as PDF.\n\nContact:\nKamal Al-Khattabi\nkamalalkhtabi@gmail.com",
                 draft_found: "A previously saved draft was found. Do you want to resume it?",
                 restore_draft: "Restore Draft",
                 delete_draft: "Delete Draft",
@@ -591,6 +601,12 @@
                 report_prep: "Prepared by:",
                 report_title_default: "Evaluation Report",
                 detailed_results_title: "Detailed Employee Evaluation Results",
+                start_tour: "Start Tour",
+                tour_step1_desc: "Upload the Excel file containing the items/questions for evaluation here.",
+                tour_step2_desc: "Upload the Excel file containing the names of employees/students here.",
+                tour_step3_desc: "Set the maximum score (e.g., 5 or 10) for accurate percentage calculation.",
+                tour_step4_desc: "Optional: Add organization name and logo for printed reports.",
+                tour_start_desc: "Click here to start the evaluation process after completing setup.",
                 excellent: "Excellent",
                 very_good: "Very Good",
                 good: "Good",
@@ -600,33 +616,99 @@
         };
 
         // --- الشاشة 1: الترحيب ---
-        const WelcomeScreen = ({ onStart, t, toggleLang, lang }) => (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary to-blue-900 text-white p-6 text-center">
-                <div className="absolute top-4 right-4">
-                    <button onClick={toggleLang} className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition">
-                        <Icons.Languages /> {t('lang_btn')}
-                    </button>
+        const WelcomeScreen = ({ onStart, t, toggleLang, lang }) => {
+            const [helpOpen, setHelpOpen] = useState(false);
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary to-blue-900 text-white p-6 text-center">
+                    <div className="absolute top-4 right-4">
+                        <button onClick={toggleLang} className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-sm transition">
+                            <Icons.Languages /> {t('lang_btn')}
+                        </button>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl shadow-2xl max-w-2xl border border-white/20 fade-in">
+                        <div className="flex items-center justify-center gap-3 mb-6">
+                            <h1 className="text-4xl font-extrabold text-yellow-300 drop-shadow-md">{t('title')}</h1>
+                            <button onClick={() => setHelpOpen(true)} className="text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10" title={t('help_guide')}>
+                                <Icons.Help className="w-8 h-8" />
+                            </button>
+                        </div>
+                        <p className="text-xl mb-8 leading-relaxed text-gray-100">
+                            {t('welcome_desc').split('\n').map((line, i) => <React.Fragment key={i}>{line}<br/></React.Fragment>)}
+                        </p>
+                        <button 
+                            onClick={onStart}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold py-3 px-10 rounded-full text-xl shadow-lg transform transition hover:scale-105 active:scale-95"
+                        >
+                            {t('start')}
+                        </button>
+                        <p className="mt-8 text-xs text-gray-300 opacity-60">{t('dev_by')}</p>
+                    </div>
+                    <Modal isOpen={helpOpen} onClose={() => setHelpOpen(false)} title={t('help_guide')}>
+                        <div className="text-right whitespace-pre-line leading-loose text-gray-700 p-2">
+                            {t('help_text')}
+                        </div>
+                    </Modal>
                 </div>
-                <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl shadow-2xl max-w-2xl border border-white/20 fade-in">
-                    <h1 className="text-4xl font-extrabold mb-6 text-yellow-300 drop-shadow-md">{t('title')}</h1>
-                    <p className="text-xl mb-8 leading-relaxed text-gray-100">
-                        {t('welcome_desc').split('\n').map((line, i) => <React.Fragment key={i}>{line}<br/></React.Fragment>)}
-                    </p>
-                    <button 
-                        onClick={onStart}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-bold py-3 px-10 rounded-full text-xl shadow-lg transform transition hover:scale-105 active:scale-95"
-                    >
-                        {t('start')}
-                    </button>
-                    <p className="mt-8 text-xs text-gray-300 opacity-60">{t('dev_by')}</p>
-                </div>
-            </div>
-        );
+            );
+        };
 
         // --- الشاشة 2: الإعداد (Main) ---
-        const SetupScreen = ({ onComplete, config, setConfig, hasDraft, onLoadDraft, setHasDraft, isLocked, onResetScores, darkMode, toggleTheme, t, toggleLang }) => {
+        const SetupScreen = ({ onComplete, config, setConfig, hasDraft, onLoadDraft, setHasDraft, isLocked, onResetScores, darkMode, toggleTheme, t, toggleLang, lang, user, trialStatus, profile, onLogout }) => {
             const [helpOpen, setHelpOpen] = useState(false);
             const [error, setError] = useState(null);
+            const [timeLeft, setTimeLeft] = useState('');
+
+            const startTour = () => {
+                const driver = window.driver.js.driver;
+                const driverObj = driver({
+                    showProgress: true,
+                    nextBtnText: t('next'),
+                    prevBtnText: t('prev'),
+                    doneBtnText: t('finish'),
+                    steps: [
+                        { element: '#setup-step-1', popover: { title: t('step1'), description: t('tour_step1_desc') } },
+                        { element: '#setup-step-2', popover: { title: t('step2'), description: t('tour_step2_desc') } },
+                        { element: '#setup-step-3', popover: { title: t('step3'), description: t('tour_step3_desc') } },
+                        { element: '#setup-step-4', popover: { title: t('step4'), description: t('tour_step4_desc') } },
+                        { element: '#setup-start-btn', popover: { title: t('start_eval'), description: t('tour_start_desc') } }
+                    ]
+                });
+                driverObj.drive();
+            };
+
+            useEffect(() => {
+                if (trialStatus?.isActive || !profile?.created_at) return;
+                
+                const updateTimer = () => {
+                    const created = new Date(profile.created_at);
+                    // إضافة 15 يوم لتاريخ الإنشاء
+                    const expiry = new Date(created.getTime() + 15 * 24 * 60 * 60 * 1000);
+                    const now = new Date();
+                    const diff = expiry - now;
+                    
+                    if (diff <= 0) {
+                        setTimeLeft("00:00:00");
+                        return;
+                    }
+                    
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+                };
+
+                updateTimer();
+                const interval = setInterval(updateTimer, 1000);
+                return () => clearInterval(interval);
+            }, [profile, trialStatus]);
+
+            useEffect(() => {
+                if (!localStorage.getItem('setup_tour_seen_v1')) {
+                    setTimeout(() => startTour(), 1500);
+                    localStorage.setItem('setup_tour_seen_v1', 'true');
+                }
+            }, []);
 
             const handleResetScores = () => {
                 if (confirm(t('reset_scores_confirm'))) {
@@ -686,19 +768,54 @@
 
             return (
                 <div className="min-h-screen bg-gray-50 dark:bg-gray-900 fade-in transition-colors duration-300">
-                    <div className="bg-white dark:bg-gray-800 shadow-sm p-4 flex justify-between items-center border-b dark:border-gray-700">
-                        <h2 className="text-xl font-bold text-primary dark:text-blue-400 flex items-center gap-2">
+                    <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 shadow-lg p-4 flex justify-between items-center border-b border-white/10 backdrop-blur-md">
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2 drop-shadow-md">
                             <Icons.Home /> {t('setup_title')}
                         </h2>
+                        
+                        {/* عرض اسم المستخدم وحالته */}
+                        {user && trialStatus && (
+                            <div className="hidden md:flex flex-col items-center mx-4">
+                                <span className="font-bold text-white text-sm">{user.name}</span>
+                                <div className="mt-1 flex items-center gap-2">
+                                    {trialStatus.isActive ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">
+                                            <LucideIcon name="check-circle" className="w-3 h-3" /> {t('active_badge')}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold border border-yellow-200">
+                                            <span className="text-[10px]">⏳</span> {t('trial_badge')} 
+                                            <span className="bg-white px-2 py-0.5 rounded text-yellow-900 mx-1 flex items-center gap-2 shadow-sm">
+                                                <span className="font-bold">{trialStatus.remainingDays} {lang === 'ar' ? 'يوم' : 'd'}</span>
+                                                {timeLeft && <span className="text-red-600 font-mono text-[10px] bg-red-50 px-1 rounded border border-red-100 min-w-[50px] text-center">{timeLeft}</span>}
+                                            </span>
+                                        </span>
+                                    )}
+                                    <a 
+                                        href={`https://wa.me/967781414133?text=${encodeURIComponent(`مرحباً، أنا ${user.name} من تطبيق "نظام تقييم الموظفين".\nحالتي: ${trialStatus.isActive ? 'مشترك معتمد' : 'فترة تجريبية'}.\n${trialStatus.isActive ? 'أحتاج إلى دعم فني.' : 'أرغب في معرفة آلية الترقية.'}`)}`}
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border transition-colors ${trialStatus.isActive ? 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200' : 'bg-blue-600 text-white border-blue-700 hover:bg-blue-700 shadow-sm animate-pulse'}`}
+                                    >
+                                        <LucideIcon name={trialStatus.isActive ? "help-circle" : "zap"} className="w-3 h-3" />
+                                        {trialStatus.isActive ? (lang === 'ar' ? "دعم" : "Support") : (lang === 'ar' ? "ترقية" : "Upgrade")}
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex gap-2">
-                            <button onClick={toggleLang} className="text-gray-500 hover:text-primary dark:text-gray-300 dark:hover:text-white flex items-center gap-1 text-sm font-bold">
+                            <button onClick={toggleLang} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110 flex items-center gap-1 text-sm font-bold">
                                 <Icons.Languages className="w-4 h-4" /> {t('lang_btn')}
                             </button>
-                            <button onClick={toggleTheme} className="text-gray-500 hover:text-primary dark:text-gray-300 dark:hover:text-white" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>
+                            <button onClick={toggleTheme} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>
                                 {darkMode ? <Icons.Sun /> : <Icons.Moon />}
                             </button>
-                            <button onClick={() => setHelpOpen(true)} className="text-gray-500 hover:text-primary dark:text-gray-300 dark:hover:text-white">
+                            <button onClick={() => setHelpOpen(true)} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={t('help_guide')}>
                                 <Icons.Help />
+                            </button>
+                            <button onClick={onLogout} className="p-2 bg-red-500/20 text-red-200 rounded-full hover:bg-red-500/40 border border-red-500/30 transition-transform hover:scale-110" title={t('logout')}>
+                                <Icons.LogOut />
                             </button>
                         </div>
                     </div>
@@ -726,7 +843,7 @@
 
                         <div className="grid md:grid-cols-2 gap-6">
                             {/* Step 1 */}
-                            <div className={`p-6 rounded-xl border-2 transition-all ${config.items.length > 0 ? 'border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600' : 'border-dashed border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'}`}>
+                            <div id="setup-step-1" className={`p-6 rounded-xl border-2 transition-all ${config.items.length > 0 ? 'border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600' : 'border-dashed border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'}`}>
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{t('step1')}</h3>
                                     {config.items.length > 0 && <Icons.Check />}
@@ -743,7 +860,7 @@
                             </div>
 
                             {/* Step 2 */}
-                            <div className={`p-6 rounded-xl border-2 transition-all ${config.names.length > 0 ? 'border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600' : 'border-dashed border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'}`}>
+                            <div id="setup-step-2" className={`p-6 rounded-xl border-2 transition-all ${config.names.length > 0 ? 'border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600' : 'border-dashed border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'}`}>
                                 <div className="flex justify-between items-start mb-4">
                                     <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">{t('step2')}</h3>
                                     {config.names.length > 0 && <Icons.Check />}
@@ -760,7 +877,7 @@
                             </div>
 
                             {/* Step 3 */}
-                            <div className="md:col-span-2 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                            <div id="setup-step-3" className="md:col-span-2 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                                 <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 mb-4">{t('step3')}</h3>
                                 <div className="flex items-center gap-4">
                                     <label className="text-gray-600 dark:text-gray-300">{t('max_score')}</label>
@@ -780,7 +897,7 @@
                             </div>
 
                             {/* Step 4: Report Info */}
-                            <div className="md:col-span-2 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                            <div id="setup-step-4" className="md:col-span-2 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
                                 <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 mb-4">{t('step4')}</h3>
                                 <div className="grid md:grid-cols-3 gap-4">
                                     <div>
@@ -801,15 +918,18 @@
                         </div>
 
                         <div className="mt-8 flex justify-center">
-                            <button onClick={validateAndStart} className="bg-primary hover:bg-blue-800 text-white font-bold py-3 px-12 rounded-full shadow-lg text-lg flex items-center gap-3 transition-transform hover:scale-105">
+                            <button id="setup-start-btn" onClick={validateAndStart} className="bg-primary hover:bg-blue-800 text-white font-bold py-3 px-12 rounded-full shadow-lg text-lg flex items-center gap-3 transition-transform hover:scale-105">
                                 <span>{t('start_eval')}</span> <Icons.Next />
                             </button>
                         </div>
                     </div>
                     <Modal isOpen={helpOpen} onClose={() => setHelpOpen(false)} title={t('help_guide')}>
-                        <ul className="space-y-2 list-disc list-inside text-gray-700">
-                            {t('help_text').split('\n').map((line, i) => <li key={i}>{line}</li>)}
-                        </ul>
+                        <div className="mb-4 border-b pb-4 text-center">
+                            <button onClick={() => { setHelpOpen(false); startTour(); }} className="bg-accent text-white px-6 py-2 rounded-full font-bold hover:bg-yellow-600 transition flex items-center gap-2 mx-auto"><Icons.Wand className="w-5 h-5" /> {t('start_tour')}</button>
+                        </div>
+                        <div className="text-right whitespace-pre-line leading-loose text-gray-700 p-2">
+                            {t('help_text')}
+                        </div>
                     </Modal>
                     <Footer t={t} />
                 </div>
@@ -866,7 +986,7 @@
                 if (!isAllRated()) { setShowMissing(true); window.scrollTo(0, 0); return; }
                 setShowMissing(false);
                 if (currentIndex < config.items.length - 1) { setCurrentIndex(prev => prev + 1); window.scrollTo(0, 0); }
-                else { onFinish(scores); }
+                else { onSaveDraft(scores); onFinish(scores); }
             };
 
             const handlePrev = () => { 
@@ -928,27 +1048,27 @@
                     </div>
 
                     {/* Header with Tools */}
-                    <div className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-40 border-b border-gray-200 dark:border-gray-700">
+                    <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 shadow-lg sticky top-0 z-40 border-b border-white/10 backdrop-blur-md">
                         <div className="container mx-auto max-w-5xl p-4 flex justify-between items-center relative">
                             <div>
-                                <div className="text-sm font-semibold text-accent uppercase tracking-wider">
+                                <div className="text-sm font-semibold text-yellow-400 uppercase tracking-wider">
                                     {t('domain')} {numberToText(currentDomainIndex)}: {currentItem.sub}
                                 </div>
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-white">{currentIndex + 1}. {currentItem.main}</h2>
+                                <h2 className="text-xl font-bold text-white drop-shadow-md">{currentIndex + 1}. {currentItem.main}</h2>
                             </div>
                             <div className="flex gap-2 items-center">
-                                <button onClick={toggleLang} className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" title={t('lang_btn')}><Icons.Languages /></button>
-                                <button onClick={toggleTheme} className="p-2 bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                <button onClick={toggleLang} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={t('lang_btn')}><Icons.Languages /></button>
+                                <button onClick={toggleTheme} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
                                 {showSaveHint && (
-                                    <div className="hidden md:flex items-center gap-1 text-xs font-bold text-yellow-600 bg-yellow-50 px-2 py-1 rounded border border-yellow-200 fade-in transition-opacity duration-500">
+                                    <div className="hidden md:flex items-center gap-1 text-xs font-bold text-yellow-300 bg-yellow-900/50 px-2 py-1 rounded border border-yellow-500/30 fade-in transition-opacity duration-500">
                                         <span>{t('save_hint')}</span>
                                         <Icons.Next /> {/* سهم يشير لليسار (نحو زر الحفظ) */}
                                     </div>
                                 )}
-                                <button onClick={saveDraft} title={t('save_draft')} className="p-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200"><Icons.Save /></button>
-                                <button onClick={handleApplyAll} title={t('apply_all')} className="p-2 bg-purple-100 text-purple-700 rounded-full hover:bg-purple-200"><Icons.Wand /></button>
-                                <button onClick={handleResetCurrentItem} title={t('reset_item')} className="p-2 bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200"><Icons.Refresh /></button>
-                                <button onClick={cancelEval} title={t('cancel_return')} className="p-2 bg-red-100 text-red-700 rounded-full hover:bg-red-200"><Icons.XCircle /></button>
+                                <button onClick={saveDraft} title={t('save_draft')} className="p-2 bg-blue-500/20 text-blue-200 rounded-full hover:bg-blue-500/40 border border-blue-500/30 transition-transform hover:scale-110"><Icons.Save /></button>
+                                <button onClick={handleApplyAll} title={t('apply_all')} className="p-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:from-purple-500 hover:to-pink-500 shadow-lg hover:shadow-purple-500/50 transform hover:scale-110 transition-all border border-white/20"><Icons.Wand /></button>
+                                <button onClick={handleResetCurrentItem} title={t('reset_item')} className="p-2 bg-orange-500/20 text-orange-200 rounded-full hover:bg-orange-500/40 border border-orange-500/30 transition-transform hover:scale-110"><Icons.Refresh /></button>
+                                <button onClick={cancelEval} title={t('cancel_return')} className="p-2 bg-red-500/20 text-red-200 rounded-full hover:bg-red-500/40 border border-red-500/30 transition-transform hover:scale-110"><Icons.XCircle /></button>
                             </div>
                         </div>
                     </div>
@@ -2023,39 +2143,40 @@
 
             return (
                 <div className="min-h-screen bg-gray-50 dark:bg-gray-900 fade-in transition-colors duration-300">
-                    <div className="shadow border-b no-print sticky top-0 z-30 bg-white dark:bg-gray-800 dark:border-gray-700">
+                    <div className="shadow-lg border-b border-white/10 no-print sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 backdrop-blur-md">
                         {/* Navigation Row */}
                         <div className="p-3">
                             <div className="container mx-auto flex flex-wrap justify-between items-center gap-4">
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                <h2 className="text-2xl font-bold text-white drop-shadow-md flex items-center gap-2">
+                                    {view === 'table' ? <Icons.File /> : <Icons.Chart />}
                                     {view === 'table' ? t('results_title') : t('analysis_title')}
                                 </h2>
                                 <div className="flex gap-2">
-                                    <button onClick={() => setView('table')} className={`px-4 py-2 rounded ${view === 'table' ? 'bg-primary text-white' : 'bg-gray-200'}`}>{t('table_view')}</button>
-                                    <button onClick={() => setView('analysis')} className={`px-4 py-2 rounded ${view === 'analysis' ? 'bg-primary text-white' : 'bg-gray-200'}`}>{t('analysis_view')}</button>
-                                    <div className="w-px h-8 bg-gray-300 mx-1"></div>
-                                    <button onClick={toggleLang} className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-3 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-1" title={t('lang_btn')}><Icons.Languages /></button>
-                                    <button onClick={toggleTheme} className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-3 py-2 rounded hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center gap-1" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
-                                    <button onClick={onBackToEdit} className="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600 flex items-center gap-1"><Icons.Edit/> {t('edit_eval')}</button>
-                                    <button onClick={onGoHome} className="bg-gray-600 text-white px-3 py-2 rounded hover:bg-gray-700 flex items-center gap-1" title={t('home')}><Icons.Home/> {t('home')}</button>
+                                    <button onClick={() => setView('table')} className={`px-4 py-2 rounded-full font-bold transition-all hover:scale-105 ${view === 'table' ? 'bg-white text-blue-900 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}>{t('table_view')}</button>
+                                    <button onClick={() => setView('analysis')} className={`px-4 py-2 rounded-full font-bold transition-all hover:scale-105 ${view === 'analysis' ? 'bg-white text-blue-900 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}>{t('analysis_view')}</button>
+                                    <div className="w-px h-8 bg-white/20 mx-1"></div>
+                                    <button onClick={toggleLang} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={t('lang_btn')}><Icons.Languages /></button>
+                                    <button onClick={toggleTheme} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
+                                    <button onClick={onBackToEdit} className="p-2 bg-yellow-500/20 text-yellow-200 rounded-full hover:bg-yellow-500/40 border border-yellow-500/30 transition-transform hover:scale-110" title={t('edit_eval')}><Icons.Edit/></button>
+                                    <button onClick={onGoHome} className="p-2 bg-gray-500/20 text-gray-200 rounded-full hover:bg-gray-500/40 border border-gray-500/30 transition-transform hover:scale-110" title={t('home')}><Icons.Home/></button>
                                 </div>
                             </div>
                         </div>
                         
                         {/* Export Row */}
-                        <div className="bg-blue-50 dark:bg-blue-900/30 p-3 border-t border-blue-100 dark:border-blue-800">
+                        <div className="bg-black/20 p-3 border-t border-white/10 backdrop-blur-sm">
                             <div className="container mx-auto flex flex-wrap items-center gap-3">
-                                <span className="text-sm font-bold text-gray-500 dark:text-gray-300 ml-2">{t('export_options')}</span>
+                                <span className="text-sm font-bold text-gray-300 ml-2 flex items-center gap-2"><Icons.Download className="w-4 h-4"/> {t('export_options')}</span>
                                 {view === 'table' ? (
                                     <>
-                                        <button onClick={exportToExcel} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2 text-sm font-bold shadow-sm"><Icons.File/> {t('export_excel')}</button>
-                                        <button onClick={exportTablePDF} disabled={isExporting} className={`bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center gap-2 text-sm font-bold shadow-sm ${isExporting ? 'opacity-50 cursor-wait' : ''}`}><Icons.File/> {t('export_pdf_table')}</button>
-                                        <button onClick={handleExportAllCards} disabled={isExporting} className={`text-white px-4 py-2 rounded shadow-sm flex items-center gap-2 text-sm font-bold transition-all ${isExporting ? 'bg-gray-400 cursor-wait' : 'bg-indigo-600 hover:bg-indigo-700'}`}>
+                                        <button onClick={exportToExcel} className="bg-green-600/90 hover:bg-green-600 text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold shadow-lg hover:shadow-green-500/30 transition-transform hover:scale-105 border border-white/10"><Icons.File/> {t('export_excel')}</button>
+                                        <button onClick={exportTablePDF} disabled={isExporting} className={`bg-red-600/90 hover:bg-red-600 text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold shadow-lg hover:shadow-red-500/30 transition-transform hover:scale-105 border border-white/10 ${isExporting ? 'opacity-50 cursor-wait' : ''}`}><Icons.File/> {t('export_pdf_table')}</button>
+                                        <button onClick={handleExportAllCards} disabled={isExporting} className={`text-white px-4 py-1.5 rounded-full shadow-lg flex items-center gap-2 text-sm font-bold transition-transform hover:scale-105 border border-white/10 ${isExporting ? 'bg-gray-400 cursor-wait' : 'bg-indigo-600/90 hover:bg-indigo-600 hover:shadow-indigo-500/30'}`}>
                                             {isExporting ? 'جاري المعالجة...' : <><Icons.Download/> {t('export_cards')}</>}
                                         </button>
                                     </>
                                 ) : (
-                                    <button onClick={exportPDFReports} disabled={isExporting} className={`bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 flex items-center gap-2 text-sm font-bold shadow-sm ${isExporting ? 'opacity-50 cursor-wait' : ''}`}><Icons.Download/> {t('export_report')}</button>
+                                    <button onClick={exportPDFReports} disabled={isExporting} className={`bg-slate-700 hover:bg-slate-600 text-white px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold shadow-lg transition-transform hover:scale-105 border border-white/10 ${isExporting ? 'opacity-50 cursor-wait' : ''}`}><Icons.Download/> {t('export_report')}</button>
                                 )}
                             </div>
                         </div>
@@ -2336,104 +2457,62 @@
         const LoginScreen = ({ onLoginSuccess, t, toggleLang, lang }) => {
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState(null);
-            const googleButtonRef = useRef(null);
 
-            useEffect(() => {
-                if (window.google && googleButtonRef.current) {
-                    window.google.accounts.id.initialize({
-                        client_id: 'ضع_معرف_العميل_الخاص_بك_هنا.apps.googleusercontent.com',
-                        callback: handleGoogleSignIn
-                    });
-                    window.google.accounts.id.renderButton(
-                        googleButtonRef.current,
-                        { theme: 'outline', size: 'large', width: '300' }
-                    );
-                }
-            }, []);
-
-            const handleGoogleSignIn = async (response) => {
+            const handleSupabaseLogin = async () => {
                 setIsLoading(true);
                 setError(null);
                 try {
-                    const base64Url = response.credential.split('.')[1];
-                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                    }).join(''));
-                    const userData = JSON.parse(jsonPayload);
-                    
-                    await supabaseClient.createProfile({
-                        id: userData.sub,
-                        email: userData.email,
-                        full_name: userData.name
+                    const { error } = await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                            redirectTo: window.location.origin
+                        }
                     });
-                    
-                    const profile = await supabaseClient.getProfile(userData.sub);
-                    
-                    localStorage.setItem('user', JSON.stringify({
-                        id: userData.sub,
-                        email: userData.email,
-                        name: userData.name,
-                        picture: userData.picture
-                    }));
-                    localStorage.setItem('profile', JSON.stringify(profile));
-                    
-                    onLoginSuccess({
-                        id: userData.sub,
-                        email: userData.email,
-                        name: userData.name,
-                        picture: userData.picture
-                    }, profile);
+                    if (error) throw error;
                 } catch (err) {
                     console.error('Sign-in error:', err);
                     setError(t('login_error'));
+                    setIsLoading(false);
                 }
-                setIsLoading(false);
             };
 
             return (
-                <div className="min-h-screen bg-gradient-to-br from-primary to-secondary flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full fade-in">
-                        <div className="text-center mb-8">
-                            <h1 className="text-3xl font-bold text-primary mb-2">{t('login_title')}</h1>
-                            <p className="text-gray-600 text-sm">{t('trial_message')}</p>
+                <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center p-4">
+                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl p-8 max-w-md w-full fade-in relative overflow-hidden">
+                        <div className="text-center mb-8 relative z-10">
+                            <h1 className="text-4xl font-extrabold text-white mb-3 drop-shadow-lg">{t('login_title')}</h1>
+                            <p className="text-blue-100 text-sm font-medium">{t('trial_message')}</p>
                         </div>
                         {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-700 text-sm flex items-start gap-2">
+                            <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6 text-red-100 text-sm flex items-start gap-2 backdrop-blur-sm">
                                 <Icons.Alert />
                                 <span>{error}</span>
                             </div>
                         )}
-                        <div className="space-y-4">
-                            <button 
-                                onClick={handleSupabaseLogin}
-                                disabled={isLoading}
-                                className="w-full py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg font-bold shadow-sm transition-all flex items-center justify-center gap-3"
-                            >
-                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6" alt="Google" />
-                                <span>{t('google_signin')}</span>
-                            </button>
-                            
-                            {/* زر دخول تجريبي لتجاوز خطأ جوجل أثناء التطوير */}
-                            <button 
-                                onClick={() => {
-                                    // محاكاة تسجيل الدخول لأغراض التطوير فقط
-                                    alert("يرجى استخدام زر جوجل أعلاه للتسجيل الحقيقي. هذا الزر للمعاينة فقط.");
-                                }}
-                                className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-bold border border-gray-300 transition-colors flex items-center justify-center gap-2"
-                            >
-                                🛠️ دخول تجريبي (تجاوز التسجيل)
-                            </button>
-
-                            {isLoading && (
-                                <div className="text-center py-4">
-                                    <div className="inline-block animate-spin"><Icons.Refresh /></div>
-                                    <p className="text-gray-600 text-sm mt-2">{t('signing_in')}</p>
+                        <div className="space-y-6 relative z-10">
+                            {!isLoading ? (
+                                <button 
+                                    onClick={handleSupabaseLogin}
+                                    className="w-full py-4 bg-white hover:bg-gray-50 text-gray-800 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3 group"
+                                >
+                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6 group-hover:scale-110 transition-transform" alt="Google" />
+                                    <span>{t('google_signin')}</span>
+                                </button>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-4">
+                                    <div className="relative w-16 h-16">
+                                        <div className="absolute w-full h-full border-4 border-white/20 rounded-full"></div>
+                                        <div className="absolute w-full h-full border-4 border-t-yellow-400 rounded-full animate-spin"></div>
+                                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6 opacity-50 grayscale" alt="G" />
+                                        </div>
+                                    </div>
+                                    <p className="text-white/90 text-sm font-bold mt-4 animate-pulse tracking-wider">{t('signing_in')}</p>
                                 </div>
                             )}
                         </div>
-                        <div className="mt-8 pt-8 border-t border-gray-200">
-                            <button onClick={() => toggleLang()} className="w-full py-2 text-gray-600 hover:text-primary flex items-center justify-center gap-2 text-sm transition-colors">
+                        <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
+                            <button onClick={() => toggleLang()} className="w-full py-2 text-blue-200 hover:text-white flex items-center justify-center gap-2 text-sm transition-colors font-semibold hover:bg-white/5 rounded-lg">
                                 <Icons.Languages /> {lang === 'ar' ? 'English' : 'العربية'}
                             </button>
                         </div>
@@ -2443,8 +2522,11 @@
         };
 
         // --- LockedScreen Component ---
-        const LockedScreen = ({ profile, t, toggleLang, lang, onLogout }) => {
-            const trialStatus = calculateTrialStatus(profile.created_at);
+        const LockedScreen = ({ trialStatus, t, toggleLang, lang, onLogout, user }) => {
+            const waText = user 
+                ? `مرحباً، أنا ${user.name} من تطبيق "نظام تقييم الموظفين".\nحالتي: فترة تجريبية (منتهية).\nأرغب في معرفة آلية الترقية.`
+                : "أرغب في تفعيل حسابي في نظام التقييم";
+
             return (
                 <div className="min-h-screen bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
                     <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full fade-in">
@@ -2459,7 +2541,7 @@
                             </p>
                         </div>
                         <div className="space-y-3">
-                            <a href="https://wa.me/967781414133?text=أرغب في تفعيل حسابي في نظام التقييم" target="_blank" rel="noopener noreferrer" className="block w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-center transition-colors flex items-center justify-center gap-2">
+                            <a href={`https://wa.me/967781414133?text=${encodeURIComponent(waText)}`} target="_blank" rel="noopener noreferrer" className="block w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-lg text-center transition-colors flex items-center justify-center gap-2">
                                 💬 {t('contact_whatsapp')}
                             </a>
                             <a href="mailto:kamalalkhtabi@gmail.com?subject=تفعيل حساب نظام التقييم" className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-lg text-center transition-colors flex items-center justify-center gap-2">
@@ -2495,6 +2577,7 @@
             const [lang, setLang] = useState('ar');
             const [user, setUser] = useState(null);
             const [profile, setProfile] = useState(null);
+            const [trialStatus, setTrialStatus] = useState(null);
             const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
             useEffect(() => {
@@ -2559,6 +2642,27 @@
                                 if (newProfile) userProfile = newProfile;
                             }
                             setProfile(userProfile);
+
+                            // التحقق الآمن من الفترة التجريبية عبر السيرفر
+                            const { data: serverStatus, error: rpcError } = await supabase.rpc('get_trial_status');
+                            if (serverStatus) {
+                                setTrialStatus(serverStatus);
+                            } else {
+                                // Fallback: حساب محلي في حال لم يتم إعداد الدالة في السيرفر
+                                const localCalc = calculateTrialStatus(userProfile.created_at);
+                                setTrialStatus({ ...localCalc, isActive: userProfile.is_active });
+                            }
+
+                            // --- التوجيه التلقائي (Auto-Redirect) ---
+                            // تحديد الحالة الحالية للتحقق من القفل
+                            const currentStatus = serverStatus || { ...calculateTrialStatus(userProfile.created_at), isActive: userProfile.is_active };
+                            
+                            if (currentStatus.isExpired && !currentStatus.isActive) {
+                                setScreen('locked');
+                            } else {
+                                // إذا كان المستخدم في شاشة الترحيب أو الدخول، يتم نقله مباشرة لشاشة الإعداد
+                                setScreen(prev => (prev === 'welcome' || prev === 'login') ? 'setup' : prev);
+                            }
                         } catch (err) {
                             console.error("Error fetching profile:", err);
                         }
@@ -2599,8 +2703,10 @@
 
             const handleStart = () => {
                 if (user && profile) {
-                    const status = calculateTrialStatus(profile.created_at);
-                    if (status.isExpired && !profile.is_active) {
+                    // استخدام الحالة المحسوبة (سواء من السيرفر أو محلياً)
+                    const currentStatus = trialStatus || { ...calculateTrialStatus(profile.created_at), isActive: profile.is_active };
+                    
+                    if (currentStatus.isExpired && !currentStatus.isActive) {
                         setScreen('locked');
                     } else {
                         setScreen('setup');
@@ -2621,8 +2727,8 @@
                 switch(screen) {
                     case 'welcome': return <WelcomeScreen onStart={handleStart} t={t} toggleLang={toggleLang} lang={lang} />;
                     case 'login': return <LoginScreen t={t} toggleLang={toggleLang} lang={lang} />;
-                    case 'locked': return <LockedScreen profile={profile} t={t} toggleLang={toggleLang} lang={lang} onLogout={handleLogout} />;
-                    case 'setup': return <SetupScreen config={config} setConfig={setConfig} onComplete={() => setScreen('eval')} hasDraft={hasDraft} onLoadDraft={loadDraft} setHasDraft={setHasDraft} isLocked={Object.keys(scores).length > 0} onResetScores={() => setScores({})} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />;
+                    case 'locked': return <LockedScreen trialStatus={trialStatus} t={t} toggleLang={toggleLang} lang={lang} onLogout={handleLogout} user={user} />;
+                    case 'setup': return <SetupScreen config={config} setConfig={setConfig} onComplete={() => setScreen('eval')} hasDraft={hasDraft} onLoadDraft={loadDraft} setHasDraft={setHasDraft} isLocked={Object.keys(scores).length > 0} onResetScores={() => setScores({})} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} lang={lang} user={user} trialStatus={trialStatus} profile={profile} onLogout={handleLogout} />;
                     case 'eval': return <EvaluationScreen config={config} initialScores={scores} onFinish={(finalScores) => { setScores(finalScores); setScreen('results'); }} onSaveDraft={saveDraft} onCancel={cancelAll} onBackToSetup={() => setScreen('setup')} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />;
                     case 'results': return <ResultsAndAnalysis config={config} scores={scores} onBackToEdit={() => setScreen('eval')} onGoHome={() => setScreen('setup')} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} lang={lang} />;
                     default: return <WelcomeScreen t={t} toggleLang={toggleLang} lang={lang} />;
