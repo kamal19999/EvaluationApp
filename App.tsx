@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from './services/supabaseClient';
-import { User } from '@supabase/supabase-js';
 import WelcomeScreen from './components/WelcomeScreen';
 import LoginScreen from './components/LoginScreen';
 import SetupScreen from './components/SetupScreen';
@@ -9,26 +8,19 @@ import EvaluationScreen from './components/EvaluationScreen';
 import ResultsAndAnalysis from './components/ResultsAndAnalysis';
 import LockScreen from './components/LockScreen';
 
-interface Profile {
-  id: string;
-  email: string;
-  full_name: string;
-  is_active: boolean;
-  created_at: string;
-}
-
-const App: React.FC = () => {
-  const [screen, setScreen] = useState<'welcome' | 'login' | 'setup' | 'eval' | 'results'>('welcome');
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+const App = () => {
+  const [screen, setScreen] = useState('welcome');
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [isLocked, setIsLocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState({ items: [], names: [], maxScore: 10, orgName: '', evaluatorName: '', logo: null });
-  const [scores, setScores] = useState<Record<string, any>>({});
+  const [scores, setScores] = useState({});
+  // Fixed type for lang state to match "ar" | "en" union expected by components
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [darkMode, setDarkMode] = useState(false);
 
-  const syncProfile = useCallback(async (authUser: User) => {
+  const syncProfile = useCallback(async (authUser) => {
     try {
       let { data: existingProfile, error } = await supabase
         .from('profiles')
@@ -74,13 +66,12 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Initial Session Check
     const initAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
         await syncProfile(session.user);
-        setScreen('setup'); // Skip welcome/login if already authenticated
+        setScreen('setup');
       } else {
         setLoading(false);
       }
@@ -88,7 +79,6 @@ const App: React.FC = () => {
     
     initAuth();
 
-    // Auth Change Listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setUser(session.user);
@@ -109,15 +99,14 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     setLoading(true);
     await supabase.auth.signOut();
-    // onAuthStateChange will handle redirection to welcome
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-900">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-yellow-300"></div>
-          <p className="text-white font-bold animate-pulse">جاري التحميل...</p>
+        <div className="flex flex-col items-center gap-4 text-white">
+          <div className="loader"></div>
+          <p className="font-bold animate-pulse">جاري التحميل...</p>
         </div>
       </div>
     );
@@ -129,51 +118,30 @@ const App: React.FC = () => {
 
   const renderScreen = () => {
     switch (screen) {
-      case 'welcome':
-        return <WelcomeScreen onStart={() => setScreen('login')} lang={lang} setLang={setLang} />;
-      case 'login':
-        return <LoginScreen onBack={() => setScreen('welcome')} />;
-      case 'setup':
-        return (
+      case 'welcome': return <WelcomeScreen onStart={() => setScreen('login')} lang={lang} setLang={setLang} />;
+      case 'login': return <LoginScreen onBack={() => setScreen('welcome')} />;
+      case 'setup': return (
           <SetupScreen 
-            profile={profile}
-            onLogout={handleLogout}
-            config={config} 
-            setConfig={setConfig} 
-            onComplete={() => setScreen('eval')}
-            lang={lang}
-            setLang={setLang}
-            darkMode={darkMode}
-            setDarkMode={setDarkMode}
-            onResetScores={() => setScores({})}
+            profile={profile} onLogout={handleLogout} config={config} setConfig={setConfig} 
+            onComplete={() => setScreen('eval')} lang={lang} setLang={setLang}
+            darkMode={darkMode} setDarkMode={setDarkMode} onResetScores={() => setScores({})}
             isDataLocked={Object.keys(scores).length > 0}
           />
         );
-      case 'eval':
-        return (
+      case 'eval': return (
           <EvaluationScreen 
-            config={config} 
-            scores={scores} 
-            setScores={setScores}
-            onFinish={() => setScreen('results')} 
-            onBack={() => setScreen('setup')}
-            lang={lang}
-            darkMode={darkMode}
+            config={config} scores={scores} setScores={setScores}
+            onFinish={() => setScreen('results')} onBack={() => setScreen('setup')}
+            lang={lang} darkMode={darkMode}
           />
         );
-      case 'results':
-        return (
+      case 'results': return (
           <ResultsAndAnalysis 
-            config={config} 
-            scores={scores} 
-            onBackToEdit={() => setScreen('eval')} 
-            onGoHome={() => setScreen('setup')}
-            lang={lang}
-            darkMode={darkMode}
+            config={config} scores={scores} onBackToEdit={() => setScreen('eval')} 
+            onGoHome={() => setScreen('setup')} lang={lang} darkMode={darkMode}
           />
         );
-      default:
-        return <WelcomeScreen onStart={() => setScreen('login')} lang={lang} setLang={setLang} />;
+      default: return <WelcomeScreen onStart={() => setScreen('login')} lang={lang} setLang={setLang} />;
     }
   };
 
