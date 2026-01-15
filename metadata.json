@@ -1,0 +1,5 @@
+{
+  "name": "Smart Evaluation System with Auth",
+  "description": "A comprehensive evaluation system featuring Google Authentication, subscription management with trial periods, and detailed reporting and analysis tools.",
+  "requestFramePermissions": []
+}
