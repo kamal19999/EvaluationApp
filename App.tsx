@@ -22,61 +22,106 @@ const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLocked, setIsLocked] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState({ items: [], names: [], maxScore: 10, orgName: '', evaluatorName: '', logo: null });
   const [scores, setScores] = useState<Record<string, any>>({});
   const [lang, setLang] = useState<'ar' | 'en'>('ar');
   const [darkMode, setDarkMode] = useState(false);
 
-  // Sync Profile and Subscription Logic
-  const checkSubscription = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+  const syncProfile = useCallback(async (authUser: User) => {
+    try {
+      let { data: existingProfile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
 
-    if (error) return null;
-    
-    const createdAt = new Date(data.created_at);
-    const now = new Date();
-    const diffDays = Math.ceil((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (diffDays > 15 && !data.is_active) {
-      setIsLocked(true);
-    } else {
-      setIsLocked(false);
+      if (error && error.code === 'PGRST116') {
+        const { data: newProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([
+            { 
+              id: authUser.id, 
+              email: authUser.email, 
+              full_name: authUser.user_metadata.full_name || authUser.email?.split('@')[0],
+              is_active: false 
+            }
+          ])
+          .select()
+          .single();
+        
+        if (!createError) existingProfile = newProfile;
+      }
+
+      if (existingProfile) {
+        setProfile(existingProfile);
+        const createdAt = new Date(existingProfile.created_at);
+        const now = new Date();
+        const diffTime = Math.abs(now.getTime() - createdAt.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays > 15 && !existingProfile.is_active) {
+          setIsLocked(true);
+        } else {
+          setIsLocked(false);
+        }
+      }
+    } catch (err) {
+      console.error("Error syncing profile:", err);
+    } finally {
+      setLoading(false);
     }
-    
-    setProfile(data);
-    return data;
   }, []);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Initial Session Check
+    const initAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
-        checkSubscription(session.user.id);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        checkSubscription(session.user.id);
-        if (screen === 'login') setScreen('setup');
+        await syncProfile(session.user);
+        setScreen('setup'); // Skip welcome/login if already authenticated
       } else {
-        setScreen('welcome');
+        setLoading(false);
+      }
+    };
+    
+    initAuth();
+
+    // Auth Change Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        await syncProfile(session.user);
+        setScreen('setup');
+      } else {
+        setUser(null);
         setProfile(null);
+        setIsLocked(false);
+        setScreen('welcome');
+        setLoading(false);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [checkSubscription]);
+  }, [syncProfile]);
 
   const handleLogout = async () => {
+    setLoading(true);
     await supabase.auth.signOut();
-    setScreen('welcome');
+    // onAuthStateChange will handle redirection to welcome
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-blue-900">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-yellow-300"></div>
+          <p className="text-white font-bold animate-pulse">جاري التحميل...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (isLocked) {
     return <LockScreen onLogout={handleLogout} />;

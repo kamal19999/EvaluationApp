@@ -8,13 +8,23 @@ interface Props {
 
 const LoginScreen: React.FC<Props> = ({ onBack }) => {
   const handleGoogleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      }
-    });
-    if (error) console.error('Error logging in:', error.message);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // استخدام window.location.origin يضمن العودة لنفس الرابط الذي يعمل عليه التطبيق حالياً
+          redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account',
+          },
+        }
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      console.error('Error logging in:', error.message);
+      alert('حدث خطأ أثناء محاولة تسجيل الدخول: ' + error.message);
+    }
   };
 
   return (
