@@ -20,38 +20,45 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 text-gray-800 p-6 relative">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-50 to-white z-0"></div>
+      <div className="absolute -top-20 -right-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-100/20 rounded-full blur-3xl"></div>
+
       <button 
         onClick={onBack}
-        className="absolute top-6 right-6 text-gray-500 hover:text-gray-800 transition"
+        className="absolute top-6 right-6 text-gray-500 hover:text-primary transition font-bold z-10 flex items-center gap-2"
       >
-        العودة
+        <span>العودة</span>
       </button>
 
-      <div className="bg-white p-10 rounded-2xl shadow-xl max-w-md w-full border border-gray-100 flex flex-col items-center text-center fade-in">
-        <div className="bg-primary/10 p-4 rounded-full mb-6 text-primary">
-          <LogIn className="w-12 h-12" />
+      <div className="relative z-10 bg-white p-12 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="bg-gradient-to-tr from-primary to-blue-600 p-5 rounded-2xl mb-8 shadow-lg text-white transform -rotate-3">
+          <LogIn className="w-10 h-10" />
         </div>
         
-        <h2 className="text-2xl font-bold mb-2 text-primary">تسجيل الدخول</h2>
-        <p className="text-gray-500 mb-8">نظام التقييم الذكي</p>
+        <h2 className="text-3xl font-extrabold mb-3 text-gray-800">تسجيل الدخول</h2>
+        <p className="text-gray-500 mb-8 font-medium">نظام التقييم الذكي</p>
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 w-full">
-          <p className="text-yellow-800 font-medium text-sm">
-            سجل في نظام التقييم لتستمتع بفترة تجريبية لمدة 15 يوم
+        {/* Trial Message */}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8 w-full shadow-sm">
+          <p className="text-amber-800 font-bold text-sm leading-relaxed">
+            ✨ سجل في نظام التقييم لتستمتع بفترة تجريبية لمدة 15 يوم
           </p>
         </div>
 
+        {/* Google Login Button */}
         <button
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-3 px-4 rounded-lg shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-4 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-4 px-6 rounded-xl shadow-sm transition-all hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           {loading ? (
-            <span>جاري التحويل...</span>
+            <span className="animate-pulse">جاري التحويل...</span>
           ) : (
             <>
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -69,13 +76,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onBack }) => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span>سجل للمتابعة باستخدام جوجل</span>
+              <span className="group-hover:text-primary transition-colors">سجل للمتابعة</span>
             </>
           )}
         </button>
 
-        <p className="mt-6 text-xs text-gray-400">
-          بالتسجيل أنت توافق على شروط الاستخدام وسياسة الخصوصية
+        <p className="mt-8 text-xs text-gray-400 text-center leading-relaxed">
+          عند التسجيل، فإنك توافق على شروط الخدمة وسياسة الخصوصية الخاصة بالنظام.
         </p>
       </div>
     </div>

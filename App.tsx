@@ -21,7 +21,7 @@ const App = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [lang, setLang] = useState('ar');
 
-  // Translations dictionary (Simplified for brevity, full content is in logic)
+  // Translations dictionary
   const translations: any = {
     ar: {
         title: "نظام التقييم الذكي",
@@ -139,7 +139,6 @@ const App = () => {
     },
     en: {
         title: "Smart Evaluation System",
-        // ... (truncated for brevity, using Arabic defaults mostly)
         welcome_desc: "Welcome to the most accurate and easy-to-use evaluation management system.\nThis app aims to simplify tracking and analysis for accurate and scalable results.",
         start: "OK, Let's Start",
         dev_by: "Developed by Kamal Al-Khattabi 007781414133",
@@ -177,7 +176,7 @@ const App = () => {
         setProfile(userProfile);
 
         if (userProfile) {
-            // Check Locking Logic
+            // Check Locking Logic (15 Days Trial)
             const createdAt = new Date(userProfile.created_at).getTime();
             const now = new Date().getTime();
             const daysSinceCreation = (now - createdAt) / (1000 * 3600 * 24);
@@ -185,12 +184,15 @@ const App = () => {
             if (daysSinceCreation > 15 && !userProfile.is_active) {
                 setScreen('blocked');
             } else {
-                // If previously was on welcome or login, move to setup
-                // If reloading on other screens, handled by state persistence usually, but simple here:
+                // Determine destination
                 if (screen === 'loading' || screen === 'welcome' || screen === 'login') {
                     setScreen('setup');
                 }
             }
+        } else {
+            // Error creating profile, go back to welcome
+            await signOut();
+            setScreen('welcome');
         }
       } else {
         // No user logged in
@@ -202,7 +204,6 @@ const App = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-         // Logic handled in checkUser mostly, but can re-trigger if needed
          if (!user) checkUser(); 
       } else {
         setUser(null);
@@ -212,7 +213,6 @@ const App = () => {
     });
 
     return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Theme & Dir effects
@@ -257,7 +257,7 @@ const App = () => {
   const renderScreen = () => {
     switch(screen) {
       case 'loading': 
-        return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-primary"/></div>;
+        return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
       case 'welcome': 
         return <WelcomeScreen onStart={() => setScreen('login')} t={t} toggleLang={toggleLang} />;
       case 'login':

@@ -28,7 +28,7 @@ export const signOut = async () => {
 export const getOrCreateProfile = async (userId: string, email: string, fullName: string): Promise<Profile | null> => {
   try {
     // 1. Try to fetch existing profile
-    const { data: existingProfile, error: fetchError } = await supabase
+    const { data: existingProfile } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
@@ -44,7 +44,6 @@ export const getOrCreateProfile = async (userId: string, email: string, fullName
       email: email,
       full_name: fullName,
       is_active: false,
-      // created_at is usually handled by DB default, but we can pass it if needed, or let DB handle it
     };
 
     const { data: createdProfile, error: insertError } = await supabase
@@ -55,6 +54,14 @@ export const getOrCreateProfile = async (userId: string, email: string, fullName
 
     if (insertError) {
       console.error('Error creating profile:', insertError);
+      // Double check if it was created in a race condition
+      const { data: retryProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+        
+      if (retryProfile) return retryProfile as Profile;
       return null;
     }
 
