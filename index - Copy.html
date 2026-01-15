@@ -49,6 +49,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4/dist/module/index.js" type="module"></script>
+    <!-- Google Auth Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -239,6 +242,60 @@
         const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
 
+        // --- Supabase Client (Simple Implementation) ---
+        const supabaseClient = {
+            async createProfile(user) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'apikey': SUPABASE_ANON_KEY,
+                        },
+                        body: JSON.stringify({
+                            id: user.id,
+                            email: user.email,
+                            full_name: user.full_name || user.name,
+                            is_active: false,
+                            created_at: new Date().toISOString()
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        if (error.code === '23505') {
+                            return { success: true, existing: true };
+                        }
+                        throw error;
+                    }
+                    
+                    return { success: true, data: await response.json() };
+                } catch (error) {
+                    console.error('Error creating profile:', error);
+                    return { success: false, error };
+                }
+            },
+            
+            async getProfile(userId) {
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'apikey': SUPABASE_ANON_KEY,
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('Failed to fetch profile');
+                    
+                    const data = await response.json();
+                    return data.length > 0 ? data[0] : null;
+                } catch (error) {
+                    console.error('Error fetching profile:', error);
+                    return null;
+                }
+            }
+        };
         // --- Supabase Client (Official) ---
         const { createClient } = window.supabase;
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -2405,6 +2462,7 @@
                             </div>
                         )}
                         <div className="space-y-4">
+                            <div ref={googleButtonRef} className="flex justify-center"></div>
                             <button 
                                 onClick={handleSupabaseLogin}
                                 disabled={isLoading}
@@ -2417,6 +2475,12 @@
                             {/* زر دخول تجريبي لتجاوز خطأ جوجل أثناء التطوير */}
                             <button 
                                 onClick={() => {
+                                    const mockUser = { id: 'dev_user', name: 'مستخدم تجريبي', email: 'dev@test.com', picture: null };
+                                    // إنشاء ملف تعريف مفعل لتجاوز شاشة القفل
+                                    const mockProfile = { id: 'dev_user', full_name: 'مستخدم تجريبي', is_active: true, created_at: new Date().toISOString() };
+                                    localStorage.setItem('user', JSON.stringify(mockUser));
+                                    localStorage.setItem('profile', JSON.stringify(mockProfile));
+                                    onLoginSuccess(mockUser, mockProfile);
                                     // محاكاة تسجيل الدخول لأغراض التطوير فقط
                                     alert("يرجى استخدام زر جوجل أعلاه للتسجيل الحقيقي. هذا الزر للمعاينة فقط.");
                                 }}
@@ -2534,6 +2598,13 @@
                         };
                         setUser(appUser);
 
+                const storedUser = localStorage.getItem('user');
+                const storedProfile = localStorage.getItem('profile');
+                if (storedUser && storedProfile) {
+                    setUser(JSON.parse(storedUser));
+                    setProfile(JSON.parse(storedProfile));
+                }
+                setIsCheckingAuth(false);
                         // جلب أو إنشاء ملف التعريف (Profile)
                         try {
                             let { data: userProfile, error } = await supabase
@@ -2610,6 +2681,20 @@
                 }
             };
 
+            const handleLoginSuccess = (u, p) => {
+                setUser(u);
+                setProfile(p);
+                const status = calculateTrialStatus(p.created_at);
+                if (status.isExpired && !p.is_active) {
+                    setScreen('locked');
+                } else {
+                    setScreen('setup');
+                }
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('user');
+                localStorage.removeItem('profile');
             const handleLogout = async () => {
                 await supabase.auth.signOut();
                 setUser(null);
@@ -2620,6 +2705,7 @@
             const renderScreen = () => {
                 switch(screen) {
                     case 'welcome': return <WelcomeScreen onStart={handleStart} t={t} toggleLang={toggleLang} lang={lang} />;
+                    case 'login': return <LoginScreen onLoginSuccess={handleLoginSuccess} t={t} toggleLang={toggleLang} lang={lang} />;
                     case 'login': return <LoginScreen t={t} toggleLang={toggleLang} lang={lang} />;
                     case 'locked': return <LockedScreen profile={profile} t={t} toggleLang={toggleLang} lang={lang} onLogout={handleLogout} />;
                     case 'setup': return <SetupScreen config={config} setConfig={setConfig} onComplete={() => setScreen('eval')} hasDraft={hasDraft} onLoadDraft={loadDraft} setHasDraft={setHasDraft} isLocked={Object.keys(scores).length > 0} onResetScores={() => setScores({})} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />;
