@@ -1,105 +1,219 @@
+import React, { useState } from 'react';
+import { Home, Languages, Sun, Moon, HelpCircle, LogOut, CheckCircle, AlertCircle, Upload, XCircle, ArrowLeft } from 'lucide-react';
+import { Profile, EvaluationConfig } from '../types';
+import * as XLSX from 'xlsx';
 
-import React from 'react';
-
-interface Props {
-  profile: any;
-  onLogout: () => void;
-  config: any;
-  setConfig: (c: any) => void;
+interface SetupScreenProps {
+  config: EvaluationConfig;
+  setConfig: (config: EvaluationConfig) => void;
   onComplete: () => void;
-  lang: 'ar' | 'en';
-  setLang: (l: 'ar' | 'en') => void;
-  darkMode: boolean;
-  setDarkMode: (d: boolean) => void;
+  hasDraft: boolean;
+  onLoadDraft: () => void;
+  setHasDraft: (val: boolean) => void;
+  isLocked: boolean;
   onResetScores: () => void;
-  isDataLocked: boolean;
+  darkMode: boolean;
+  toggleTheme: () => void;
+  t: (key: string, params?: any) => string;
+  toggleLang: () => void;
+  profile: Profile | null;
+  onLogout: () => void;
 }
 
-const SetupScreen: React.FC<Props> = ({ 
-  profile, onLogout, config, setConfig, onComplete, 
-  lang, setLang, darkMode, setDarkMode, onResetScores, isDataLocked 
+const SetupScreen: React.FC<SetupScreenProps> = ({ 
+  config, setConfig, onComplete, hasDraft, onLoadDraft, setHasDraft, 
+  isLocked, onResetScores, darkMode, toggleTheme, t, toggleLang, profile, onLogout 
 }) => {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {/* Auth Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <button onClick={onLogout} className="text-red-500 hover:text-red-600 font-bold flex items-center gap-2 text-sm">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                تسجيل الخروج
-            </button>
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-            <div className="flex-1 flex flex-col items-center">
-                <h2 className="text-xl font-black text-gray-800 dark:text-white">{profile?.full_name || 'مستخدم النظام'}</h2>
-                <div className="flex gap-2 mt-1">
-                    {profile?.is_active ? (
-                        <span className="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                            <span>✅</span> مشترك معتمد
-                        </span>
-                    ) : (
-                        <span className="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
-                            <span>⏳</span> فترة تجريبية
-                        </span>
-                    )}
+  // Helper to parse data (simplified from original SmartParser)
+  const processData = (rawData: any[], type: 'items' | 'names') => {
+    if (!rawData || rawData.length === 0) return [];
+    // Simple logic: assume header is row 0, data starts row 1. 
+    // Column 0 = Main (Item/Name), Column 1 = Sub (Domain/Branch)
+    // In a real port, SmartParser logic should be fully implemented.
+    const data = [];
+    for (let i = 1; i < rawData.length; i++) {
+        const row = rawData[i];
+        if (row && row[0]) {
+            data.push({
+                id: i,
+                main: String(row[0]).trim(),
+                sub: row[1] ? String(row[1]).trim() : (type === 'names' ? 'عام' : 'بدون مجال')
+            });
+        }
+    }
+    return data;
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'items' | 'names') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        const processed = processData(data as any[], type);
+
+        if (processed.length === 0) throw new Error(t('no_data'));
+
+        if (type === 'names') setConfig({ ...config, names: processed });
+        else setConfig({ ...config, items: processed });
+        setError(null);
+      } catch (err) {
+        setError(t('file_error', { type: type === 'names' ? t('step2') : t('step1') }));
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      setConfig({ ...config, logo: evt.target?.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const validateAndStart = () => {
+    if (config.items.length === 0) return setError(t('error_items'));
+    if (config.names.length === 0) return setError(t('error_names'));
+    if (config.maxScore < 1 || config.maxScore > 10) return setError(t('error_max_score'));
+    onComplete();
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 fade-in transition-colors duration-300">
+      {/* HEADER WITH PROFILE INFO */}
+      <div className="bg-white dark:bg-gray-800 shadow-sm p-4 flex flex-wrap gap-4 justify-between items-center border-b dark:border-gray-700">
+        <h2 className="text-xl font-bold text-primary dark:text-blue-400 flex items-center gap-2">
+           <Home className="w-5 h-5"/> {t('setup_title')}
+        </h2>
+        
+        {/* Profile Info Center */}
+        {profile && (
+            <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-full">
+                <span className="font-bold text-gray-800 dark:text-gray-100">{profile.full_name}</span>
+                {profile.is_active ? (
+                    <span className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full border border-green-200">
+                        <CheckCircle className="w-3 h-3"/> مشترك معتمد
+                    </span>
+                ) : (
+                    <span className="flex items-center gap-1 text-xs font-bold text-yellow-700 bg-yellow-100 px-2 py-1 rounded-full border border-yellow-200">
+                        <AlertCircle className="w-3 h-3"/> فترة تجريبية
+                    </span>
+                )}
+            </div>
+        )}
+
+        <div className="flex gap-2">
+          <button onClick={toggleLang} className="btn-icon">
+            <Languages className="w-4 h-4" /> {t('lang_btn')}
+          </button>
+          <button onClick={toggleTheme} className="btn-icon">
+            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+          <button onClick={() => setHelpOpen(true)} className="btn-icon">
+             <HelpCircle className="w-4 h-4" />
+          </button>
+          <button onClick={onLogout} className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50" title="تسجيل الخروج">
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="container mx-auto p-6 max-w-4xl">
+        {hasDraft && (
+          <div className="bg-blue-50 border border-blue-200 p-4 mb-6 rounded-lg flex flex-wrap gap-4 justify-between items-center shadow-sm">
+            <span className="text-blue-800 font-bold">{t('draft_found')}</span>
+            <div className="flex gap-2">
+              <button onClick={onLoadDraft} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center gap-2">
+                <Upload className="w-4 h-4" /> {t('restore_draft')}
+              </button>
+              <button onClick={() => {localStorage.removeItem('eval_draft'); setHasDraft(false);}} className="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 flex items-center gap-2 border border-red-200">
+                <XCircle className="w-4 h-4" /> {t('delete_draft')}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {error && (
+            <div className="bg-red-100 border-r-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex items-center gap-2">
+                <AlertCircle /> {error}
+            </div>
+        )}
+
+        {/* Configuration Steps */}
+        <div className="grid md:grid-cols-2 gap-6">
+            {/* Step 1: Items */}
+            <div className={`p-6 rounded-xl border-2 transition-all ${config.items.length > 0 ? 'border-green-500 bg-green-50' : 'border-dashed border-gray-300 bg-white'}`}>
+                <div className="flex justify-between items-start mb-4">
+                    <h3 className="font-bold text-lg text-gray-800">{t('step1')}</h3>
+                    {config.items.length > 0 && <CheckCircle className="text-green-600" />}
+                </div>
+                <label className="flex items-center justify-center w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-100 border border-blue-200 transition">
+                    <Upload className="w-5 h-5" /> <span className="mx-2">{t('upload_excel')}</span>
+                    <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={(e) => handleFileUpload(e, 'items')} />
+                </label>
+                <p className="text-xs text-gray-500 mt-2">{t('recognized_items', {count: config.items.length})}</p>
+            </div>
+
+            {/* Step 2: Names */}
+            <div className={`p-6 rounded-xl border-2 transition-all ${config.names.length > 0 ? 'border-green-500 bg-green-50' : 'border-dashed border-gray-300 bg-white'}`}>
+                <div className="flex justify-between items-start mb-4">
+                    <h3 className="font-bold text-lg text-gray-800">{t('step2')}</h3>
+                    {config.names.length > 0 && <CheckCircle className="text-green-600" />}
+                </div>
+                <label className="flex items-center justify-center w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-100 border border-blue-200 transition">
+                    <Upload className="w-5 h-5" /> <span className="mx-2">{t('upload_excel')}</span>
+                    <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={(e) => handleFileUpload(e, 'names')} />
+                </label>
+                <p className="text-xs text-gray-500 mt-2">{t('recognized_names', {count: config.names.length})}</p>
+            </div>
+
+            {/* Step 3: Max Score */}
+             <div className="md:col-span-2 p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+                <h3 className="font-bold text-lg text-gray-800 mb-4">{t('step3')}</h3>
+                <div className="flex items-center gap-4">
+                    <label className="text-gray-600">{t('max_score')}</label>
+                    <input type="number" min="1" max="10" value={config.maxScore} onChange={(e) => setConfig({...config, maxScore: parseInt(e.target.value) || 0})} disabled={isLocked} className="w-20 p-2 border rounded text-center font-bold text-primary" />
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
-                <button onClick={() => setDarkMode(!darkMode)} className="text-gray-500 hover:text-gray-700 dark:text-gray-300">
-                    {darkMode ? '🌙' : '☀️'}
-                </button>
-                <button onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')} className="text-sm font-bold text-blue-600">
-                    {lang === 'ar' ? 'EN' : 'AR'}
-                </button>
+             {/* Step 4: Report Data */}
+             <div className="md:col-span-2 p-6 bg-white rounded-xl shadow-sm border border-gray-200">
+                <h3 className="font-bold text-lg text-gray-800 mb-4">{t('step4')}</h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">{t('org_name')}</label>
+                        <input type="text" value={config.orgName || ''} onChange={(e) => setConfig({...config, orgName: e.target.value})} className="w-full p-2 border rounded" placeholder="مثال: مدرسة المجد" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">{t('evaluator_name')}</label>
+                        <input type="text" value={config.evaluatorName || ''} onChange={(e) => setConfig({...config, evaluatorName: e.target.value})} className="w-full p-2 border rounded" placeholder="مثال: أ. محمد أحمد" />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-bold text-gray-700 mb-1">{t('logo')}</label>
+                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700"/>
+                    </div>
+                </div>
             </div>
         </div>
-      </header>
 
-      <main className="max-w-4xl mx-auto p-8">
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 border border-gray-100 dark:border-gray-700 fade-in">
-            <h1 className="text-3xl font-bold mb-8 text-primary border-b pb-4">إعداد التقييم</h1>
-            
-            <div className="space-y-8">
-                {/* Manual placeholder logic - reusing structure from previous version */}
-                <section>
-                    <h3 className="text-lg font-bold mb-4 text-gray-700 dark:text-gray-200">1. البنود</h3>
-                    <div className="p-6 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700/50">
-                         <p className="text-gray-500 mb-4">ارفع ملف Excel للبنود أو أدخلها يدوياً</p>
-                         <button className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">رفع ملف</button>
-                    </div>
-                </section>
-
-                <section>
-                    <h3 className="text-lg font-bold mb-4 text-gray-700 dark:text-gray-200">2. الأسماء</h3>
-                    <div className="p-6 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-2xl flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700/50">
-                         <p className="text-gray-500 mb-4">ارفع ملف Excel للأسماء أو أدخلها يدوياً</p>
-                         <button className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-blue-700 transition">رفع ملف</button>
-                    </div>
-                </section>
-
-                <section>
-                    <h3 className="text-lg font-bold mb-4 text-gray-700 dark:text-gray-200">3. الدرجة القصوى</h3>
-                    <input 
-                        type="number" 
-                        value={config.maxScore}
-                        onChange={(e) => setConfig({...config, maxScore: parseInt(e.target.value)})}
-                        disabled={isDataLocked}
-                        className="w-full p-4 border rounded-2xl dark:bg-gray-700 dark:border-gray-600 font-bold text-center text-2xl text-blue-600"
-                    />
-                    {isDataLocked && (
-                        <button onClick={onResetScores} className="mt-2 text-red-500 text-sm font-bold underline">تصفير الدرجات المسجلة للتعديل</button>
-                    )}
-                </section>
-                
-                <button 
-                    onClick={onComplete}
-                    className="w-full bg-primary text-white py-5 rounded-3xl font-black text-xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1"
-                >
-                    بدء التقييم
-                </button>
-            </div>
+        <div className="mt-8 flex justify-center">
+            <button onClick={validateAndStart} className="bg-primary hover:bg-blue-800 text-white font-bold py-3 px-12 rounded-full shadow-lg text-lg flex items-center gap-3 transition-transform hover:scale-105">
+                <span>{t('start_eval')}</span> <ArrowLeft />
+            </button>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

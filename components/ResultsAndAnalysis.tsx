@@ -1,74 +1,116 @@
+import React, { useState, useMemo } from 'react';
+import { EvaluationConfig, Scores } from '../types';
+import * as XLSX from 'xlsx';
+import { Download, FileSpreadsheet, Home, Edit } from 'lucide-react';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { Bar, Doughnut } from 'react-chartjs-2';
 
-import React from 'react';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
-interface Props {
-  config: any;
-  scores: any;
-  onBackToEdit: () => void;
-  onGoHome: () => void;
-  lang: string;
-  darkMode: boolean;
+interface ResultsProps {
+    config: EvaluationConfig;
+    scores: Scores;
+    onBackToEdit: () => void;
+    onGoHome: () => void;
+    darkMode: boolean;
+    toggleTheme: () => void;
+    t: (key: string, params?: any) => string;
+    toggleLang: () => void;
+    lang: string;
 }
 
-const ResultsAndAnalysis: React.FC<Props> = ({ config, scores, onBackToEdit, onGoHome, lang, darkMode }) => {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
-        <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center mb-10">
-                <h1 className="text-4xl font-black text-gray-800 dark:text-white">النتائج والتحليل</h1>
-                <div className="flex gap-4 no-print">
-                    <button onClick={onBackToEdit} className="bg-yellow-500 text-white px-6 py-2 rounded-xl font-bold shadow-md">تعديل التقييم</button>
-                    <button onClick={onGoHome} className="bg-gray-600 text-white px-6 py-2 rounded-xl font-bold shadow-md">الرئيسية</button>
-                    <button onClick={() => window.print()} className="bg-primary text-white px-6 py-2 rounded-xl font-bold shadow-md">طباعة التقرير</button>
-                </div>
-            </div>
+const ResultsAndAnalysis: React.FC<ResultsProps> = ({ config, scores, onBackToEdit, onGoHome, t, lang }) => {
+    // Basic processing logic
+    const processedResults = useMemo(() => {
+        return config.names.map(person => {
+            let totalScore = 0;
+            let validItemsCount = 0;
+            const itemScores: Record<number, number> = {};
+            config.items.forEach(item => {
+                let s = scores[`${item.id}_${person.id}`];
+                if (s === undefined) s = 0; 
+                itemScores[item.id] = s as number;
+                
+                if (s !== -1) {
+                    totalScore += s as number;
+                    validItemsCount++;
+                }
+            });
+            const maxPossible = validItemsCount * config.maxScore;
+            const percent = maxPossible > 0 ? (totalScore / maxPossible) * 100 : 0;
+            return {
+                ...person, itemScores, totalScore, percent
+            };
+        });
+    }, [config, scores]);
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <p className="text-gray-400 text-sm font-bold mb-1 uppercase">إجمالي الأسماء</p>
-                    <h3 className="text-4xl font-black text-blue-600">{config.names.length}</h3>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <p className="text-gray-400 text-sm font-bold mb-1 uppercase">إجمالي البنود</p>
-                    <h3 className="text-4xl font-black text-secondary">{config.items.length}</h3>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <p className="text-gray-400 text-sm font-bold mb-1 uppercase">متوسط الأداء</p>
-                    <h3 className="text-4xl font-black text-accent">85%</h3>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
-                    <p className="text-gray-400 text-sm font-bold mb-1 uppercase">الحالة</p>
-                    <h3 className="text-2xl font-black text-green-500">مكتمل</h3>
-                </div>
-            </div>
+    // Export Logic
+    const exportToExcel = () => {
+        const wb = XLSX.utils.book_new();
+        const data = processedResults.map(p => ({
+            "الاسم": p.main,
+            "الفرع": p.sub,
+            "النقاط": p.totalScore,
+            "النسبة": p.percent.toFixed(2) + '%'
+        }));
+        const ws = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, "النتائج");
+        XLSX.writeFile(wb, "Evaluation_Results.xlsx");
+    };
 
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden border dark:border-gray-700">
-                <table className="w-full text-right border-collapse">
-                    <thead className="bg-gray-50 dark:bg-gray-700/50">
-                        <tr>
-                            <th className="p-6 font-black text-gray-700 dark:text-gray-200">الاسم</th>
-                            <th className="p-6 font-black text-gray-700 dark:text-gray-200">المجموع</th>
-                            <th className="p-6 font-black text-gray-700 dark:text-gray-200">النسبة</th>
-                            <th className="p-6 font-black text-gray-700 dark:text-gray-200">التقدير</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {config.names.map((n: any) => (
-                            <tr key={n.id} className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                                <td className="p-6 font-bold text-gray-800 dark:text-gray-100">{n.main}</td>
-                                <td className="p-6 font-medium text-gray-600 dark:text-gray-400">120</td>
-                                <td className="p-6 text-primary font-black">92%</td>
-                                <td className="p-6">
-                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-black">ممتاز</span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+    return (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+             <div className="bg-white p-4 rounded shadow mb-4 flex justify-between items-center">
+                 <h2 className="text-xl font-bold">{t('results_title')}</h2>
+                 <div className="flex gap-2">
+                     <button onClick={exportToExcel} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded"><FileSpreadsheet className="w-4 h-4"/> Excel</button>
+                     <button onClick={onBackToEdit} className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded"><Edit className="w-4 h-4"/> {t('edit_eval')}</button>
+                     <button onClick={onGoHome} className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded"><Home className="w-4 h-4"/> {t('home')}</button>
+                 </div>
+             </div>
+
+             <div className="bg-white rounded shadow overflow-x-auto">
+                 <table className="w-full text-right border-collapse">
+                     <thead className="bg-gray-100">
+                         <tr>
+                             <th className="p-3 border">#</th>
+                             <th className="p-3 border">{t('name_col')}</th>
+                             <th className="p-3 border">{t('branch')}</th>
+                             <th className="p-3 border">{t('total')}</th>
+                             <th className="p-3 border">{t('percent')}</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         {processedResults.map((r, i) => (
+                             <tr key={i} className="border-b">
+                                 <td className="p-3 border">{i + 1}</td>
+                                 <td className="p-3 border font-bold">{r.main}</td>
+                                 <td className="p-3 border">{r.sub}</td>
+                                 <td className="p-3 border">{r.totalScore}</td>
+                                 <td className="p-3 border font-bold text-blue-600">{r.percent.toFixed(1)}%</td>
+                             </tr>
+                         ))}
+                     </tbody>
+                 </table>
+             </div>
+             
+             {/* Chart Example */}
+             <div className="mt-8 bg-white p-4 rounded shadow h-96">
+                <Bar 
+                    data={{
+                        labels: processedResults.map(p => p.main),
+                        datasets: [{
+                            label: t('percent'),
+                            data: processedResults.map(p => p.percent),
+                            backgroundColor: '#1e40af',
+                            borderRadius: 4
+                        }]
+                    }}
+                    options={{ responsive: true, maintainAspectRatio: false }}
+                />
+             </div>
         </div>
-    </div>
-  );
+    );
 };
 
 export default ResultsAndAnalysis;
