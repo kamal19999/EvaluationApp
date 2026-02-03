@@ -2482,8 +2482,13 @@
                     });
                     if (error) throw error;
                     if (data?.url) {
-                        // التوجيه اليدوي للرابط المستلم من البروكسي
-                        window.location.href = data.url;
+                        // استبدال رابط Supabase المحجوب برابط البروكسي في عنوان العودة (Callback)
+                        // ملاحظة: يجب إضافة الرابط الجديد في Google Cloud Console
+                        const proxyUrl = data.url.replace(
+                            'https%3A%2F%2Fnbtuyrieidgqmntvahvn.supabase.co', 
+                            'https%3A%2F%2Fev.kamalalkhtabi.workers.dev'
+                        );
+                        window.location.href = proxyUrl;
                     }
                 } catch (err) {
                     console.error('Sign-in error:', err);
