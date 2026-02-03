@@ -240,7 +240,8 @@
 
         
         // --- Supabase Configuration ---
-        const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
+        // في حال الحظر، استبدل الرابط أدناه برابط البروكسي (مثل Cloudflare Worker)
+        const SUPABASE_URL = 'https://ev.kamalalkhtabi.workers.dev'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
 
         // --- Supabase Client (Official) ---
@@ -356,6 +357,7 @@
                 google_signin: "تسجيل الدخول عبر جوجل",
                 signing_in: "جاري التسجيل...",
                 login_error: "حدث خطأ في التسجيل. يرجى المحاولة مرة أخرى.",
+                network_error: "تعذر الاتصال بالخادم. قد تكون الخدمة محجوبة في منطقتك، يرجى تجربة VPN.",
                 locked_title: "انتهت فترتك التجريبية",
                 locked_message: "لقد انتهت فترتك التجريبية المجانية لمدة 15 يوم. يرجى التواصل معنا للتفعيل.",
                 contact_whatsapp: "تواصل عبر واتساب",
@@ -488,6 +490,7 @@
                 google_signin: "Sign in with Google",
                 signing_in: "Signing in...",
                 login_error: "An error occurred during registration. Please try again.",
+                network_error: "Connection failed. Service might be blocked in your region, please try VPN.",
                 locked_title: "Your trial period has expired",
                 locked_message: "Your 15-day free trial has expired. Please contact us for activation.",
                 contact_whatsapp: "Contact via WhatsApp",
@@ -2471,7 +2474,12 @@
                     if (error) throw error;
                 } catch (err) {
                     console.error('Sign-in error:', err);
-                    setError(t('login_error'));
+                    // التحقق مما إذا كان الخطأ بسبب مشكلة في الاتصال (الحظر)
+                    if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
+                        setError(t('network_error'));
+                    } else {
+                        setError(t('login_error'));
+                    }
                     setIsLoading(false);
                 }
             };
