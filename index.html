@@ -2473,13 +2473,18 @@
                 setIsLoading(true);
                 setError(null);
                 try {
-                    const { error } = await supabase.auth.signInWithOAuth({
+                    const { data, error } = await supabase.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin
+                            redirectTo: window.location.origin,
+                            skipBrowserRedirect: true // نطلب الرابط فقط ولا ندع المكتبة توجهنا تلقائياً
                         }
                     });
                     if (error) throw error;
+                    if (data?.url) {
+                        // التوجيه اليدوي للرابط المستلم من البروكسي
+                        window.location.href = data.url;
+                    }
                 } catch (err) {
                     console.error('Sign-in error:', err);
                     // التحقق مما إذا كان الخطأ بسبب مشكلة في الاتصال (الحظر)
