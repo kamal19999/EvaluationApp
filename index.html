@@ -240,20 +240,12 @@
 
         
         // --- Supabase Configuration ---
-        // في حال الحظر، استبدل الرابط أدناه برابط البروكسي (مثل Cloudflare Worker)
-        const SUPABASE_URL = 'https://ev.kamalalkhtabi.workers.dev'; 
+        const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
 
         // --- Supabase Client (Official) ---
         const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true,
-                storageKey: 'evaluation-app-token'
-            }
-        });
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- Trial Period Logic ---
         const calculateTrialStatus = (createdAt) => {
@@ -364,8 +356,6 @@
                 google_signin: "تسجيل الدخول عبر جوجل",
                 signing_in: "جاري التسجيل...",
                 login_error: "حدث خطأ في التسجيل. يرجى المحاولة مرة أخرى.",
-                remember_me: "تذكرني لمدة 5 أيام",
-                network_error: "تعذر الاتصال بالخادم. قد تكون الخدمة محجوبة في منطقتك، يرجى تجربة VPN.",
                 locked_title: "انتهت فترتك التجريبية",
                 locked_message: "لقد انتهت فترتك التجريبية المجانية لمدة 15 يوم. يرجى التواصل معنا للتفعيل.",
                 contact_whatsapp: "تواصل عبر واتساب",
@@ -498,8 +488,6 @@
                 google_signin: "Sign in with Google",
                 signing_in: "Signing in...",
                 login_error: "An error occurred during registration. Please try again.",
-                remember_me: "Remember me for 5 days",
-                network_error: "Connection failed. Service might be blocked in your region, please try VPN.",
                 locked_title: "Your trial period has expired",
                 locked_message: "Your 15-day free trial has expired. Please contact us for activation.",
                 contact_whatsapp: "Contact via WhatsApp",
@@ -2469,48 +2457,21 @@
         const LoginScreen = ({ onLoginSuccess, t, toggleLang, lang }) => {
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState(null);
-            const [rememberMe, setRememberMe] = useState(true);
 
             const handleSupabaseLogin = async () => {
                 setIsLoading(true);
                 setError(null);
                 try {
-                    // حفظ تفضيل "تذكرني" قبل التوجيه
-                    localStorage.setItem('remember_me_pref', rememberMe);
-                    
-                    const { data, error } = await supabase.auth.signInWithOAuth({
+                    const { error } = await supabase.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin,
-                            skipBrowserRedirect: true // نطلب الرابط فقط ولا ندع المكتبة توجهنا تلقائياً
+                            redirectTo: window.location.origin
                         }
                     });
                     if (error) throw error;
-                    if (data?.url) {
-                        // بما أن البروكسي يعيد JSON يحتوي على الرابط لتجنب الحظر، يجب جلبه أولاً باستخدام fetch
-                        const response = await fetch(data.url);
-                        const json = await response.json();
-
-                        if (json.url) {
-                            // استبدال رابط Supabase المحجوب برابط البروكسي في عنوان العودة (Callback) داخل رابط جوجل المستلم
-                            const googleUrl = json.url.replace(
-                                /https%3A%2F%2Fnbtuyrieidgqmntvahvn\.supabase\.co/g, 
-                                'https%3A%2F%2Fev.kamalalkhtabi.workers.dev'
-                            );
-                            // التوجيه النهائي إلى صفحة دخول جوجل
-                            window.location.href = googleUrl;
-                        } else {
-                            throw new Error("فشل في الحصول على رابط التوجيه من البروكسي");
-                        }
-                    }
                 } catch (err) {
                     console.error('Sign-in error:', err);
-                    // التحقق مما إذا كان الخطأ بسبب مشكلة في الاتصال (الحظر)
-                    if (err.message && (err.message.includes('Failed to fetch') || err.message.includes('NetworkError'))) {
-                        setError(t('network_error'));
-                    } else {
-                        setError(t('login_error'));
-                    }
+                    setError(t('login_error'));
                     setIsLoading(false);
                 }
             };
@@ -2528,14 +2489,6 @@
                                 <span>{error}</span>
                             </div>
                         )}
-                        
-                        <div className="mb-4 flex items-center justify-center relative z-10">
-                            <label className="flex items-center gap-2 text-blue-100 cursor-pointer hover:text-white transition-colors">
-                                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                <span className="text-sm font-medium">{t('remember_me')}</span>
-                            </label>
-                        </div>
-
                         <div className="space-y-6 relative z-10">
                             {!isLoading ? (
                                 <button 
@@ -2655,30 +2608,6 @@
                 // الاستماع لتغيرات حالة المصادقة من Supabase
                 const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
                     if (session) {
-                        // --- منطق "تذكرني" لمدة 5 أيام ---
-                        const isRemembered = localStorage.getItem('remember_me_pref') === 'true';
-                        const loginTimestamp = localStorage.getItem('login_timestamp');
-                        const now = Date.now();
-                        const fiveDaysMs = 5 * 24 * 60 * 60 * 1000;
-
-                        if (isRemembered) {
-                            if (loginTimestamp) {
-                                // إذا مر أكثر من 5 أيام، قم بتسجيل الخروج
-                                if (now - parseInt(loginTimestamp) > fiveDaysMs) {
-                                    await supabase.auth.signOut();
-                                    localStorage.removeItem('login_timestamp');
-                                    localStorage.removeItem('remember_me_pref');
-                                    setUser(null);
-                                    setProfile(null);
-                                    setScreen('login');
-                                    return; // إيقاف التنفيذ
-                                }
-                            } else {
-                                // تسجيل وقت الدخول لأول مرة
-                                localStorage.setItem('login_timestamp', now);
-                            }
-                        }
-
                         // تحويل بيانات المستخدم لتناسب هيكل التطبيق
                         const appUser = {
                             id: session.user.id,
@@ -2791,7 +2720,6 @@
                 await supabase.auth.signOut();
                 setUser(null);
                 setProfile(null);
-                localStorage.removeItem('login_timestamp'); // مسح توقيت الدخول عند الخروج اليدوي
                 setScreen('welcome');
             };
 
