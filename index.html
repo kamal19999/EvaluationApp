@@ -2488,13 +2488,21 @@
                     });
                     if (error) throw error;
                     if (data?.url) {
-                        // استبدال رابط Supabase المحجوب برابط البروكسي في عنوان العودة (Callback)
-                        // ملاحظة: يجب إضافة الرابط الجديد في Google Cloud Console
-                        const proxyUrl = data.url.replace(
-                            'https%3A%2F%2Fnbtuyrieidgqmntvahvn.supabase.co', 
-                            'https%3A%2F%2Fev.kamalalkhtabi.workers.dev'
-                        );
-                        window.location.href = proxyUrl;
+                        // بما أن البروكسي يعيد JSON يحتوي على الرابط لتجنب الحظر، يجب جلبه أولاً باستخدام fetch
+                        const response = await fetch(data.url);
+                        const json = await response.json();
+
+                        if (json.url) {
+                            // استبدال رابط Supabase المحجوب برابط البروكسي في عنوان العودة (Callback) داخل رابط جوجل المستلم
+                            const googleUrl = json.url.replace(
+                                encodeURIComponent('https://nbtuyrieidgqmntvahvn.supabase.co'), 
+                                encodeURIComponent('https://ev.kamalalkhtabi.workers.dev')
+                            );
+                            // التوجيه النهائي إلى صفحة دخول جوجل
+                            window.location.href = googleUrl;
+                        } else {
+                            throw new Error("فشل في الحصول على رابط التوجيه من البروكسي");
+                        }
                     }
                 } catch (err) {
                     console.error('Sign-in error:', err);
