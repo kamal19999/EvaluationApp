@@ -240,28 +240,12 @@
 
         
         // --- Supabase Configuration ---
-       const PROXY_URL = 'https://ev.kamalalkhtabi.workers.dev';
-        const ORIGINAL_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
-        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
+        const SUPABASE_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
 
         // --- Supabase Client (Official) ---
-       const { createClient } = window.supabase;
-        const supabase = createClient(PROXY_URL, ANON_KEY);
-
-
-function signIn() {
-    const PROXY_URL = 'https://ev.kamalalkhtabi.workers.dev';
-    const REDIRECT_TO = 'https://evaluationapp.vercel.app/index.html';
-    
-    // بناء الرابط يدوياً وتوجيه المتصفح إليه مباشرة
-    // هذا الرابط يذهب للجسر -> ثم سوبابيز -> ثم جوجل
-    const authUrl = `${PROXY_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(REDIRECT_TO)}`;
-    
-    console.log("توجيه مباشر لتجاوز حماية CSP...");
-    window.location.href = authUrl;
-}
-
-
+        const { createClient } = window.supabase;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- Trial Period Logic ---
         const calculateTrialStatus = (createdAt) => {
