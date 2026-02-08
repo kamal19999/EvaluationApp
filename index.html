@@ -240,12 +240,30 @@
 
         
         // --- Supabase Configuration ---
-        const SUPABASE_URL = 'https://ev.kamalalkhtabi.workers.dev';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
+       const PROXY_URL = 'https://ev.kamalalkhtabi.workers.dev';
+        const ORIGINAL_URL = 'https://nbtuyrieidgqmntvahvn.supabase.co';
+        const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5idHV5cmllaWRncW1udHZhaHZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgzMjY1OTEsImV4cCI6MjA4MzkwMjU5MX0.uUmn7euq4GwygfY54F2z6S3ZEUmUGfoo1D9dMvDhvP0';
 
         // --- Supabase Client (Official) ---
-        const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+       // const { createClient } = window.supabase;
+        const supabase = createClient(PROXY_URL, ANON_KEY);
+
+
+async function signIn() {
+    // عند تسجيل الدخول، ننشئ عميلاً مؤقتاً بالرابط الأصلي لتجنب مشاكل جوجل
+    const authClient = supabase.createClient(ORIGINAL_URL, ANON_KEY);
+    
+    const { error } = await authClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            redirectTo: 'https://evaluationapp.vercel.app/index.html'
+        }
+    });
+    if (error) console.error(error.message);
+}
+
+
+
 
         // --- Trial Period Logic ---
         const calculateTrialStatus = (createdAt) => {
