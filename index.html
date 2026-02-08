@@ -149,6 +149,7 @@
             Languages: () => <LucideIcon name="languages" className="w-5 h-5" />,
             LogOut: () => <LucideIcon name="log-out" className="w-5 h-5" />,
             User: () => <LucideIcon name="user" className="w-5 h-5" />,
+            Phone: () => <LucideIcon name="phone" className="w-5 h-5" />,
         };
 
         // --- دوال مساعدة ذكية ---
@@ -356,6 +357,8 @@
                 trial_message: "سجل في نظام تقييم الموظفين لتستمتع بفترة تجريبية لمدة 15 يوم",
                 google_signin: "تسجيل الدخول عبر جوجل",
                 skip_login: "دخول كزائر (صلاحيات محدودة)",
+                guest_trial: "نسخة تجريبية",
+                guest_upgrade_tooltip: "انقر هنا للتواصل والترقية إلى النسخة الاحترافية",
                 signing_in: "جاري التسجيل...",
                 login_error: "حدث خطأ في التسجيل. يرجى المحاولة مرة أخرى.",
                 locked_title: "انتهت فترتك التجريبية",
@@ -367,7 +370,8 @@
                 logout: "تسجيل الخروج",
                 welcome_desc: "مرحباً بك في النظام الأكثر دقة وسهولة لإدارة التقييمات.\nيهدف هذا التطبيق لتبسيط عملية الرصد والتحليل للحصول على نتائج دقيقة وقابلة للتطوير.",
                 start: "موافق، لنبدأ",
-                dev_by: "تطوير كمال الخطابي 00967781414133",
+                dev_by: "تطوير كمال الخطابي",
+                click_to_call: "انقر هنا للاتصال",
                 setup_title: "إعداد التقييم",
                 step1: "1. البنود",
                 step2: "2. الأسماء",
@@ -384,7 +388,7 @@
                 logo: "شعار الجهة",
                 start_eval: "ابدأ التقييم",
                 help_guide: "دليل الاستخدام",
-                help_text: "أهلاً بك في نظام التقييم الشامل. إليك خطوات الاستخدام:\n\nمرحلة الإعداد:\nقم برفع ملف البنود (Excel) أو أدخلها يدوياً.\nقم برفع ملف الأسماء (Excel) للموظفين.\nحدد الدرجة العظمى للتقييم (مثلاً من 5 أو 10).\nيمكنك إضافة شعار واسم الجهة ليظهر في التقارير.\n\nمرحلة التقييم:\nسيظهر لك بند واحد في كل شاشة، قم بتقييم الجميع عليه.\nاستخدم زر (تطبيق على الكل) لتعميم درجة واحدة بسرعة.\nاستخدم زر (حفظ مسودة) بشكل دوري لضمان عدم ضياع عملك.\nيمكنك كتابة ملاحظات خاصة لكل موظف عبر أيقونة الملاحظات.\n\nالنتائج والتقارير:\nالجدول: لعرض الدرجات التفصيلية مع إمكانية البحث والفلترة.\nالتحليل: لعرض الرسوم البيانية وأفضل/أقل أداء.\nاضغط على اسم أي موظف لعرض وطباعة بطاقته الفردية.\n\nالتصدير:\nيمكنك استخراج النتائج كملف Excel شامل.\nيمكنك طباعة التقارير والبطاقات كملفات PDF.\n\nلأي استفسار أو دعم فني:\nكمال الخطابي\nkamalalkhtabi@gmail.com \nللاتصال 00967781414133",
+                help_text: "أهلاً بك في نظام التقييم الشامل. إليك خطوات الاستخدام:\n\nمرحلة الإعداد:\nقم برفع ملف البنود (Excel) أو أدخلها يدوياً.\nقم برفع ملف الأسماء (Excel) للموظفين.\nحدد الدرجة العظمى للتقييم (مثلاً من 5 أو 10).\nيمكنك إضافة شعار واسم الجهة ليظهر في التقارير.\n\nمرحلة التقييم:\nسيظهر لك بند واحد في كل شاشة، قم بتقييم الجميع عليه.\nاستخدم زر (تطبيق على الكل) لتعميم درجة واحدة بسرعة.\nاستخدم زر (حفظ مسودة) بشكل دوري لضمان عدم ضياع عملك.\nيمكنك كتابة ملاحظات خاصة لكل موظف عبر أيقونة الملاحظات.\n\nالنتائج والتقارير:\nالجدول: لعرض الدرجات التفصيلية مع إمكانية البحث والفلترة.\nالتحليل: لعرض الرسوم البيانية وأفضل/أقل أداء.\nاضغط على اسم أي موظف لعرض وطباعة بطاقته الفردية.\n\nالتصدير:\nيمكنك استخراج النتائج كملف Excel شامل.\nيمكنك طباعة التقارير والبطاقات كملفات PDF.\n\nلأي استفسار أو دعم فني:\nكمال الخطابي\nkamalalkhtabi@gmail.com",
                 draft_found: "يوجد تقييم محفوظ سابقاً (مسودة)، هل تريد استكماله؟",
                 restore_draft: "استرجاع المسودة",
                 delete_draft: "حذف المسودة",
@@ -489,6 +493,8 @@
                 trial_message: "Register in the evaluation system to enjoy a 15-day trial period",
                 google_signin: "Sign in with Google",
                 skip_login: "Guest Login (Limited Access)",
+                guest_trial: "Trial Version",
+                guest_upgrade_tooltip: "Click here to contact and upgrade to Pro",
                 signing_in: "Signing in...",
                 login_error: "An error occurred during registration. Please try again.",
                 locked_title: "Your trial period has expired",
@@ -500,7 +506,8 @@
                 logout: "Logout",
                 welcome_desc: "Welcome to the most accurate and easy-to-use evaluation management system.\nThis app aims to simplify tracking and analysis for accurate and scalable results.",
                 start: "OK, Let's Start",
-                dev_by: "Developed by Kamal Al-Khattabi 00967781414133",
+                dev_by: "Developed by Kamal Al-Khattabi",
+                click_to_call: "Click here to call",
                 setup_title: "Evaluation Setup",
                 step1: "1. Items",
                 step2: "2. Names",
@@ -618,6 +625,20 @@
             }
         };
 
+        // --- مكون الاتصال المطور ---
+        const ContactBadge = ({ t }) => (
+            <div className="inline-flex items-center gap-2">
+                <span>{t('dev_by')}</span>
+                <a href="tel:00967781414133" className="group relative flex items-center justify-center w-8 h-8 bg-green-600 rounded-full text-white hover:bg-green-700 transition-all hover:scale-110 shadow-md">
+                    <Icons.Phone className="w-4 h-4" />
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 font-sans">
+                        {t('click_to_call')} 00967781414133
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                </a>
+            </div>
+        );
+
         // --- الشاشة 1: الترحيب ---
         const WelcomeScreen = ({ onStart, t, toggleLang, lang }) => {
             const [helpOpen, setHelpOpen] = useState(false);
@@ -644,11 +665,14 @@
                         >
                             {t('start')}
                         </button>
-                        <p className="mt-8 text-xs text-gray-300 opacity-60">{t('dev_by')}</p>
+                        <div className="mt-8 text-xs text-gray-300 opacity-60">
+                            <ContactBadge t={t} />
+                        </div>
                     </div>
                     <Modal isOpen={helpOpen} onClose={() => setHelpOpen(false)} title={t('help_guide')}>
                         <div className="text-right whitespace-pre-line leading-loose text-gray-700 p-2">
                             {t('help_text')}
+                            <div className="mt-4 pt-4 border-t flex justify-center"><ContactBadge t={t} /></div>
                         </div>
                     </Modal>
                 </div>
@@ -795,7 +819,7 @@
                                         </span>
                                     )}
                                     <a 
-                                        href={`https://wa.me/967781414133?text=${encodeURIComponent(`مرحباً، أنا ${user.name} من تطبيق "نظام تقييم الموظفين".\nحالتي: ${trialStatus.isActive ? 'مشترك معتمد' : 'فترة تجريبية'}.\n${trialStatus.isActive ? 'أحتاج إلى دعم فني.' : 'أرغب في معرفة آلية الترقية.'}`)}`}
+                                        href={`https://wa.me/967781414133?text=${encodeURIComponent(lang === 'ar' ? `مرحباً، أنا ${user.name} من تطبيق "نظام تقييم الموظفين".\nحالتي: ${trialStatus.isActive ? 'مشترك معتمد' : 'فترة تجريبية'}.\n${trialStatus.isActive ? 'أحتاج إلى دعم فني.' : 'أرغب في معرفة آلية الترقية.'}` : `Hello, I am ${user.name} from "Employee Evaluation System".\nStatus: ${trialStatus.isActive ? 'Verified Member' : 'Trial Period'}.\n${trialStatus.isActive ? 'I need technical support.' : 'I would like to know about upgrading.'}`)}`}
                                         target="_blank" 
                                         rel="noopener noreferrer"
                                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold border transition-colors ${trialStatus.isActive ? 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200' : 'bg-blue-600 text-white border-blue-700 hover:bg-blue-700 shadow-sm animate-pulse'}`}
@@ -815,11 +839,11 @@
                                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
                                       <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
                                     </span>
-                                    <span className="text-yellow-100 text-xs font-bold">نسخة تجريبية</span>
+                                    <span className="text-yellow-100 text-xs font-bold">{t('guest_trial')}</span>
                                 </div>
                                 
                                 <a 
-                                    href="https://wa.me/967781414133?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%AA%D8%B1%D9%82%D9%8A%D8%A9%20%D9%84%D9%84%D9%86%D8%B3%D8%AE%D8%A9%20%D8%A7%D9%84%D8%A7%D8%AD%D8%AA%D8%B1%D8%A7%D9%81%D9%8A%D8%A9"
+                                    href={`https://wa.me/967781414133?text=${encodeURIComponent(lang === 'ar' ? "مرحباً، أرغب في الترقية للنسخة الاحترافية" : "Hello, I would like to upgrade to the Pro version")}`}
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className="group relative flex items-center justify-center w-9 h-9 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full text-white shadow-lg shadow-orange-600/20 hover:shadow-orange-600/40 hover:scale-110 transition-all duration-300 border border-white/10"
@@ -827,7 +851,7 @@
                                     <LucideIcon name="crown" className="w-5 h-5 drop-shadow-sm" />
                                     
                                     <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 w-48 bg-gray-900/90 backdrop-blur-md text-white text-xs font-medium py-2 px-3 rounded-xl shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 pointer-events-none text-center border border-white/10 z-50">
-                                        انقر هنا للتواصل والترقية إلى النسخة الاحترافية
+                                        {t('guest_upgrade_tooltip')}
                                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-900/90"></div>
                                     </div>
                                 </a>
@@ -959,6 +983,7 @@
                         </div>
                         <div className="text-right whitespace-pre-line leading-loose text-gray-700 p-2">
                             {t('help_text')}
+                            <div className="mt-4 pt-4 border-t flex justify-center"><ContactBadge t={t} /></div>
                         </div>
                     </Modal>
                     <Footer t={t} />
@@ -1686,7 +1711,7 @@
                     // E. Footer Credit
                     const footerDiv = document.createElement('div');
                     footerDiv.className = 'text-center text-gray-500 text-xs font-bold mt-2 p-2 border-t border-gray-400';
-                    footerDiv.innerText = t('dev_by');
+                    footerDiv.innerText = t('dev_by') + " 00967781414133";
                     container.appendChild(footerDiv);
 
                     // 3. Capture Images
@@ -1798,7 +1823,7 @@
                         padding: '10px', lineHeight: '1.5',
                         borderTop: '1px solid #9ca3af'
                     });
-                    footerDiv.innerText = t('dev_by');
+                    footerDiv.innerText = t('dev_by') + " 00967781414133";
                     document.body.appendChild(footerDiv);
                     const footerCanvas = await html2canvas(footerDiv, { scale: 2 });
                     const footerImg = footerCanvas.toDataURL('image/png');
@@ -1989,7 +2014,7 @@
                         padding: '10px', lineHeight: '1.5',
                         borderTop: '1px solid #9ca3af'
                     });
-                    footerDiv.innerText = t('dev_by');
+                    footerDiv.innerText = t('dev_by') + " 00967781414133";
                     document.body.appendChild(footerDiv);
                     const footerCanvas = await html2canvas(footerDiv, { scale: 2 });
                     const footerImg = footerCanvas.toDataURL('image/png');
@@ -2080,7 +2105,7 @@
                             padding: '10px', lineHeight: '1.5',
                             borderTop: '1px solid #9ca3af'
                         });
-                        footerDiv.innerText = t('dev_by');
+                        footerDiv.innerText = t('dev_by') + " 00967781414133";
                         document.body.appendChild(footerDiv);
                         const footerCanvas = await html2canvas(footerDiv, { scale: 2 });
                         const footerImg = footerCanvas.toDataURL('image/png');
@@ -2578,8 +2603,8 @@
         // --- LockedScreen Component ---
         const LockedScreen = ({ trialStatus, t, toggleLang, lang, onLogout, user }) => {
             const waText = user 
-                ? `مرحباً، أنا ${user.name} من تطبيق "نظام تقييم الموظفين".\nحالتي: فترة تجريبية (منتهية).\nأرغب في معرفة آلية الترقية.`
-                : "أرغب في تفعيل حسابي في نظام التقييم";
+                ? (lang === 'ar' ? `مرحباً، أنا ${user.name} من تطبيق "نظام تقييم الموظفين".\nحالتي: فترة تجريبية (منتهية).\nأرغب في معرفة آلية الترقية.` : `Hello, I am ${user.name} from "Employee Evaluation System".\nStatus: Trial Period (Expired).\nI would like to know about upgrading.`)
+                : (lang === 'ar' ? "أرغب في تفعيل حسابي في نظام التقييم" : "I would like to activate my account in the Evaluation System");
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center p-4">
@@ -2617,7 +2642,7 @@
 
         const Footer = ({ t }) => (
             <footer className="bg-gray-800 text-gray-300 py-4 text-center text-sm w-full mt-auto print-only">
-                {t('dev_by')}
+                <ContactBadge t={t} />
             </footer>
         );
 
