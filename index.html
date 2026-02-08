@@ -2491,13 +2491,22 @@
                         )}
                         <div className="space-y-6 relative z-10">
                             {!isLoading ? (
-                                <button 
-                                    onClick={handleSupabaseLogin}
-                                    className="w-full py-4 bg-white hover:bg-gray-50 text-gray-800 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3 group"
-                                >
-                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6 group-hover:scale-110 transition-transform" alt="Google" />
-                                    <span>{t('google_signin')}</span>
-                                </button>
+                                <>
+                                    <button 
+                                        onClick={handleSupabaseLogin}
+                                        className="w-full py-4 bg-white hover:bg-gray-50 text-gray-800 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3 group"
+                                    >
+                                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-6 h-6 group-hover:scale-110 transition-transform" alt="Google" />
+                                        <span>{t('google_signin')}</span>
+                                    </button>
+                                    <button 
+                                        onClick={onSkip}
+                                        className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center justify-center gap-3"
+                                    >
+                                        <span>الدخول المباشر (تخطي)</span>
+                                        <Icons.Next />
+                                    </button>
+                                </>
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-4">
                                     <div className="relative w-16 h-16">
@@ -2726,7 +2735,7 @@
             const renderScreen = () => {
                 switch(screen) {
                     case 'welcome': return <WelcomeScreen onStart={handleStart} t={t} toggleLang={toggleLang} lang={lang} />;
-                    case 'login': return <LoginScreen t={t} toggleLang={toggleLang} lang={lang} />;
+                    case 'login': return <LoginScreen t={t} toggleLang={toggleLang} lang={lang} onSkip={() => setScreen('setup')} />;
                     case 'locked': return <LockedScreen trialStatus={trialStatus} t={t} toggleLang={toggleLang} lang={lang} onLogout={handleLogout} user={user} />;
                     case 'setup': return <SetupScreen config={config} setConfig={setConfig} onComplete={() => setScreen('eval')} hasDraft={hasDraft} onLoadDraft={loadDraft} setHasDraft={setHasDraft} isLocked={Object.keys(scores).length > 0} onResetScores={() => setScores({})} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} lang={lang} user={user} trialStatus={trialStatus} profile={profile} onLogout={handleLogout} />;
                     case 'eval': return <EvaluationScreen config={config} initialScores={scores} onFinish={(finalScores) => { setScores(finalScores); setScreen('results'); }} onSaveDraft={saveDraft} onCancel={cancelAll} onBackToSetup={() => setScreen('setup')} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />;
