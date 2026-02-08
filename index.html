@@ -249,19 +249,17 @@
         const supabase = createClient(PROXY_URL, ANON_KEY);
 
 
-async function signIn() {
-    // عند تسجيل الدخول، ننشئ عميلاً مؤقتاً بالرابط الأصلي لتجنب مشاكل جوجل
-    const authClient = supabase.createClient(ORIGINAL_URL, ANON_KEY);
+function signIn() {
+    const PROXY_URL = 'https://ev.kamalalkhtabi.workers.dev';
+    const REDIRECT_TO = 'https://evaluationapp.vercel.app/index.html';
     
-    const { error } = await authClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: 'https://evaluationapp.vercel.app/index.html'
-        }
-    });
-    if (error) console.error(error.message);
+    // بناء الرابط يدوياً وتوجيه المتصفح إليه مباشرة
+    // هذا الرابط يذهب للجسر -> ثم سوبابيز -> ثم جوجل
+    const authUrl = `${PROXY_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(REDIRECT_TO)}`;
+    
+    console.log("توجيه مباشر لتجاوز حماية CSP...");
+    window.location.href = authUrl;
 }
-
 
 
 
