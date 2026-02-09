@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام تقييم الموظفين </title>
-    
+    <!--K50-->
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -33,6 +33,40 @@
         }
     </script>
     
+    <!-- PWA Configuration -->
+    <script>
+        // Dynamic Manifest
+        const manifest = {
+            "name": "نظام تقييم الموظفين",
+            "short_name": "التقييم",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#1e40af",
+            "theme_color": "#1e40af",
+            "orientation": "portrait",
+            "icons": [
+                { "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", "sizes": "512x512", "type": "image/png" },
+                { "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", "sizes": "192x192", "type": "image/png" }
+            ]
+        };
+        const manifestURL = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/json'}));
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+
+        // Add Icons for iOS & Browser Tab
+        const iconUrl = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+        const appleLink = document.createElement('link'); appleLink.rel = 'apple-touch-icon'; appleLink.href = iconUrl; document.head.appendChild(appleLink);
+        const faviconLink = document.createElement('link'); faviconLink.rel = 'icon'; faviconLink.href = iconUrl; document.head.appendChild(faviconLink);
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            const swUrl = URL.createObjectURL(new Blob(['self.addEventListener("install", e => self.skipWaiting()); self.addEventListener("fetch", e => {});'], {type: 'text/javascript'}));
+            navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+    </script>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     
@@ -150,6 +184,10 @@
             LogOut: () => <LucideIcon name="log-out" className="w-5 h-5" />,
             User: () => <LucideIcon name="user" className="w-5 h-5" />,
             Phone: () => <LucideIcon name="phone" className="w-5 h-5" />,
+            Menu: () => <LucideIcon name="menu" className="w-6 h-6" />,
+            Info: () => <LucideIcon name="info" className="w-6 h-6" />,
+            Share: () => <LucideIcon name="share-2" className="w-5 h-5" />,
+            Smartphone: () => <LucideIcon name="smartphone" className="w-5 h-5" />,
         };
 
         // --- دوال مساعدة ذكية ---
@@ -273,8 +311,8 @@
                 if (data && data.length > 0) {
                     setRows(data.map(d => [d.main, d.sub]));
                 } else {
-                    // إذا لم تكن هناك بيانات، نبدأ بصفوف فارغة فقط إذا كانت المصفوفة فارغة تماماً
-                    if (rows.length === 0) setRows([['', ''], ['', ''], ['', '']]);
+                    // إعادة تعيين الصفوف إلى الافتراضي عند خلو البيانات (مثل عند الضغط على مسح البيانات)
+                    setRows([['', ''], ['', ''], ['', '']]);
                 }
             }, [data]);
 
@@ -388,7 +426,18 @@
                 logo: "شعار الجهة",
                 start_eval: "ابدأ التقييم",
                 help_guide: "دليل الاستخدام",
-                help_text: "أهلاً بك في نظام التقييم الشامل. إليك خطوات الاستخدام:\n\nمرحلة الإعداد:\nقم برفع ملف البنود (Excel) أو أدخلها يدوياً.\nقم برفع ملف الأسماء (Excel) للموظفين.\nحدد الدرجة العظمى للتقييم (مثلاً من 5 أو 10).\nيمكنك إضافة شعار واسم الجهة ليظهر في التقارير.\n\nمرحلة التقييم:\nسيظهر لك بند واحد في كل شاشة، قم بتقييم الجميع عليه.\nاستخدم زر (تطبيق على الكل) لتعميم درجة واحدة بسرعة.\nاستخدم زر (حفظ مسودة) بشكل دوري لضمان عدم ضياع عملك.\nيمكنك كتابة ملاحظات خاصة لكل موظف عبر أيقونة الملاحظات.\n\nالنتائج والتقارير:\nالجدول: لعرض الدرجات التفصيلية مع إمكانية البحث والفلترة.\nالتحليل: لعرض الرسوم البيانية وأفضل/أقل أداء.\nاضغط على اسم أي موظف لعرض وطباعة بطاقته الفردية.\n\nالتصدير:\nيمكنك استخراج النتائج كملف Excel شامل.\nيمكنك طباعة التقارير والبطاقات كملفات PDF.\n\nلأي استفسار أو دعم فني:\nكمال الخطابي\nkamalalkhtabi@gmail.com",
+                about_app: "نبذة عن التطبيق",
+                share_app: "مشاركة التطبيق",
+                link_copied: "تم نسخ رابط التطبيق بنجاح",
+                install_app: "تثبيت التطبيق",
+                about_p1_title: "أهمية التقييم والتغذية الراجعة",
+                about_p1_desc: "التقييم ليس مجرد رصد للدرجات، بل هو أداة استراتيجية لتطوير الأداء. يساعد تقييم الموظفين في تحديد نقاط القوة والضعف، وتوفير تغذية راجعة بناءة تساهم في النمو المهني وتحقيق أهداف المؤسسة بكفاءة عالية.",
+                about_p2_title: "التحول الرقمي والأتمتة",
+                about_p2_desc: "في عصر السرعة، أصبح الانتقال من الورق إلى الأدوات الرقمية ضرورة لا خياراً. الأتمتة توفر الوقت، تقلل الأخطاء، وتضمن حفظ البيانات بشكل آمن ومنظم. من هنا انطلقت فكرة هذا التطبيق لمواكبة التكنولوجيا الحديثة.",
+                about_p3_title: "لماذا هذا التطبيق؟",
+                about_p3_desc: "نقدم لك الحل المتكامل لإدارة الأداء بلمسة احترافية:\n✨ مرونة مطلقة: إعداد معايير وبنود تقييم غير محدودة تناسب أي مؤسسة.\n📊 ذكاء الأعمال: لوحات تحليلية (Dashboards) تفاعلية تكشف لك مواطن القوة والضعف بدقة.\n🚀 سرعة الإنجاز: أدوات ذكية مثل (التعميم) و(النسخ) توفر 80% من وقت الرصد.\n🖨️ تقارير احترافية: تصدير فوري لبطاقات الأداء والنتائج بصيغ PDF و Excel جاهزة للطباعة.\n🔒 أمان وخصوصية: بياناتك محفوظة محلياً ومشفرة لضمان السرية التامة.",
+                contact_dev_more: "للمزيد من المعلومات أو طلب خصائص مخصصة، تواصل مع:",
+                help_text: "أهلاً بك في نظام التقييم الشامل. إليك دليل الاستخدام المحدث:\n\n1. الواجهة والقوائم:\n- استخدم القائمة الجانبية (أيقونة الخطوط الثلاثة) للوصول إلى الإعدادات، تغيير اللغة، الوضع الليلي، والتنقل بين الشاشات.\n\n2. إعداد التقييم:\n- البيانات: يمكنك رفع ملفات Excel للبنود والأسماء، أو استخدام الإدخال اليدوي. يتوفر خيار (تحميل قالب) للحصول على ملف Excel منسق جاهز.\n- أدوات سريعة: استخدم زر (تعبئة بيانات تجريبية) لتجربة النظام، أو أيقونة (تحديث/مسح) لتفريغ الحقول.\n- الخيارات: حدد الدرجة العظمى للتقييم، وأدخل بيانات وشعار الجهة للتقارير.\n\n3. شاشة التقييم:\n- يتم التقييم بنداً تلو الآخر. استخدم شريط التقدم العلوي أو الأزرار للتنقل.\n- أدوات مساعدة: (تطبيق على الكل) لتوحيد الدرجة، (حفظ مسودة) لحفظ التقدم، و(الملاحظات) لتدوين تعليقات فردية.\n\n4. النتائج والتحليل:\n- العرض الجدولي: يعرض النتائج تفصيلياً مع خيارات البحث والتصفية (حسب الفرع، المجال، التقدير).\n- لوحة التحليل: تعرض مؤشرات الأداء (KPIs) والرسوم البيانية للفروع والمجالات.\n- البطاقات: انقر على اسم أي شخص في الجدول لعرض بطاقة أدائه وطباعتها.\n\n5. التصدير والطباعة:\n- تصدير النتائج إلى Excel.\n- تصدير ملفات PDF متنوعة: الجدول، التقرير التحليلي، أو جميع البطاقات الفردية دفعة واحدة.\n\nلأي استفسار أو دعم فني:\nكمال الخطابي\nkamalalkhtabi@gmail.com",
                 draft_found: "يوجد تقييم محفوظ سابقاً (مسودة)، هل تريد استكماله؟",
                 restore_draft: "استرجاع المسودة",
                 delete_draft: "حذف المسودة",
@@ -411,8 +460,8 @@
                 home: "الرئيسية",
                 export_options: "خيارات التصدير:",
                 export_excel: "Excel",
-                export_pdf_table: "PDF (جدول)",
-                export_cards: "تصدير البطاقات (PDF)",
+                export_pdf_table: "الجدول(PDF)",
+                export_cards: "البطاقات(PDF)",
                 export_report: "تصدير التقرير الكامل",
                 filter_search: "تصفية وبحث:",
                 search_placeholder: "بحث بالاسم...",
@@ -463,6 +512,10 @@
                 error_names: "يجب رفع ملف الأسماء أولاً",
                 error_max_score: "الدرجة القصوى يجب أن تكون بين 1 و 10",
                 file_error: "خطأ في قراءة ملف {type}. تأكد من صحة الملف.",
+                download_template: "تصدير قالب فارغ",
+                load_demo_data: "تعبئة بيانات تجريبية",
+                clear_data: "مسح البيانات",
+                clear_confirm: "هل أنت متأكد من مسح جميع البيانات المدخلة؟",
                 no_data: "لم يتم العثور على بيانات صالحة",
                 item_label: "البند",
                 domain_label: "المجال (اختياري)",
@@ -524,7 +577,18 @@
                 logo: "Organization Logo",
                 start_eval: "Start Evaluation",
                 help_guide: "User Guide",
-                help_text: "Welcome to the Comprehensive Evaluation System. Here are the steps:\n\nSetup Phase:\nUpload Items file (Excel) or enter manually.\nUpload Names file (Excel).\nSet Max Score (e.g., 5 or 10).\nYou can add an organization logo and name.\n\nEvaluation Phase:\nOne item appears per screen, rate everyone on it.\nUse 'Apply to All' for speed.\nUse 'Save Draft' regularly.\nYou can add notes for each person.\n\nResults & Reports:\nTable: For detailed scores with search/filter.\nAnalysis: For charts and best/worst performance.\nClick any name to view/print their card.\n\nExport:\nExport results as Excel.\nPrint reports and cards as PDF.\n\nContact:\nKamal Al-Khattabi\nkamalalkhtabi@gmail.com",
+                about_app: "About the App",
+                share_app: "Share App",
+                link_copied: "App link copied successfully",
+                install_app: "Install App",
+                about_p1_title: "Importance of Evaluation & Feedback",
+                about_p1_desc: "Evaluation is not just about scoring; it's a strategic tool for performance development. Employee assessment helps identify strengths and weaknesses, providing constructive feedback that fosters professional growth and efficient goal achievement.",
+                about_p2_title: "Digital Transformation & Automation",
+                about_p2_desc: "In the age of speed, moving from paper to digital tools is a necessity. Automation saves time, reduces errors, and ensures secure data organization. This app was born from the need to keep pace with modern technology.",
+                about_p3_title: "Why This App?",
+                about_p3_desc: "We offer you a comprehensive performance management solution:\n✨ Absolute Flexibility: Unlimited evaluation criteria tailored to any organization.\n📊 Business Intelligence: Interactive dashboards revealing strengths and weaknesses precisely.\n🚀 Efficiency: Smart tools like (Apply All) save 80% of entry time.\n🖨️ Professional Reports: Instant export of performance cards and results in PDF & Excel.\n🔒 Security & Privacy: Your data is stored locally and encrypted for complete confidentiality.",
+                contact_dev_more: "For more information or custom features, contact the developer:",
+                help_text: "Welcome to the Comprehensive Evaluation System. User Guide:\n\n1. Interface & Menus:\n- Use the Sidebar (three lines icon) to access settings, change language, toggle dark mode, and navigate between screens.\n\n2. Evaluation Setup:\n- Data: Upload Excel files for Items and Names, or use manual entry. Use (Download Template) to get a formatted Excel file.\n- Quick Tools: Use (Load Demo Data) to test the system, or the (Refresh/Clear) icon to reset fields.\n- Options: Set the Max Score and add organization details/logo for reports.\n\n3. Evaluation Screen:\n- Evaluation is done item by item. Use the top progress bar or buttons to navigate.\n- Helper Tools: (Apply to All) to set a unified score, (Save Draft) to save progress, and (Notes) for individual comments.\n\n4. Results & Analysis:\n- Table View: Displays detailed results with search and filtering options (by Branch, Domain, Rating).\n- Analysis Dashboard: Shows Performance Indicators (KPIs) and charts for branches and domains.\n- Cards: Click on any name in the table to view and print their performance card.\n\n5. Export & Print:\n- Export results to Excel.\n- Export various PDF files: Table, Analysis Report, or all Individual Cards in bulk.\n\nContact:\nKamal Al-Khattabi\nkamalalkhtabi@gmail.com",
                 draft_found: "A previously saved draft was found. Do you want to resume it?",
                 restore_draft: "Restore Draft",
                 delete_draft: "Delete Draft",
@@ -599,6 +663,10 @@
                 error_names: "Must upload names file first",
                 error_max_score: "Max score must be between 1 and 10",
                 file_error: "Error reading {type} file. Check file validity.",
+                download_template: "Download Empty Template",
+                load_demo_data: "Load Demo Data",
+                clear_data: "Clear Data",
+                clear_confirm: "Are you sure you want to clear all entered data?",
                 no_data: "No valid data found",
                 item_label: "Item",
                 domain_label: "Domain (Optional)",
@@ -641,7 +709,7 @@
 
         // --- الشاشة 1: الترحيب ---
         const WelcomeScreen = ({ onStart, t, toggleLang, lang }) => {
-            const [helpOpen, setHelpOpen] = useState(false);
+            const [aboutOpen, setAboutOpen] = useState(false);
             return (
                 <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-primary to-blue-900 text-white p-6 text-center">
                     <div className="absolute top-4 right-4">
@@ -652,8 +720,8 @@
                     <div className="bg-white/10 backdrop-blur-md p-10 rounded-2xl shadow-2xl max-w-2xl border border-white/20 fade-in">
                         <div className="flex items-center justify-center gap-3 mb-6">
                             <h1 className="text-4xl font-extrabold text-yellow-300 drop-shadow-md">{t('title')}</h1>
-                            <button onClick={() => setHelpOpen(true)} className="text-white/80 hover:text-white transition p-2 rounded-full hover:bg-white/10" title={t('help_guide')}>
-                                <Icons.Help className="w-8 h-8" />
+                            <button onClick={() => setAboutOpen(true)} className="text-white bg-white/10 hover:bg-white/20 transition p-3 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.3)] animate-bounce border border-white/30" title={t('about_app')}>
+                                <Icons.Info className="w-8 h-8" />
                             </button>
                         </div>
                         <p className="text-xl mb-8 leading-relaxed text-gray-100">
@@ -669,10 +737,42 @@
                             <ContactBadge t={t} />
                         </div>
                     </div>
-                    <Modal isOpen={helpOpen} onClose={() => setHelpOpen(false)} title={t('help_guide')}>
-                        <div className="text-right whitespace-pre-line leading-loose text-gray-700 p-2">
-                            {t('help_text')}
-                            <div className="mt-4 pt-4 border-t flex justify-center"><ContactBadge t={t} /></div>
+                    <Modal isOpen={aboutOpen} onClose={() => setAboutOpen(false)} title={t('about_app')}>
+                        <div className="space-y-6 p-2 text-right" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+                            {/* Pillar 1 */}
+                            <div className="bg-gradient-to-br from-orange-100 to-amber-200 p-5 rounded-xl border-l-8 border-orange-600 shadow-md transform transition hover:scale-[1.01]">
+                                <h3 className="font-extrabold text-orange-900 text-xl mb-3 flex items-center gap-2">
+                                    <Icons.Chart /> {t('about_p1_title')}
+                                </h3>
+                                <p className="text-orange-950 font-semibold text-sm leading-relaxed text-justify">
+                                    {t('about_p1_desc')}
+                                </p>
+                            </div>
+
+                            {/* Pillar 2 */}
+                            <div className="bg-gradient-to-br from-emerald-100 to-teal-200 p-5 rounded-xl border-l-8 border-emerald-600 shadow-md transform transition hover:scale-[1.01]">
+                                <h3 className="font-extrabold text-emerald-900 text-xl mb-3 flex items-center gap-2">
+                                    <Icons.Wand /> {t('about_p2_title')}
+                                </h3>
+                                <p className="text-emerald-950 font-semibold text-sm leading-relaxed text-justify">
+                                    {t('about_p2_desc')}
+                                </p>
+                            </div>
+
+                            {/* Pillar 3 */}
+                            <div className="bg-gradient-to-br from-indigo-100 to-purple-200 p-5 rounded-xl border-l-8 border-indigo-600 shadow-md transform transition hover:scale-[1.01]">
+                                <h3 className="font-extrabold text-indigo-900 text-xl mb-3 flex items-center gap-2">
+                                    <Icons.Check /> {t('about_p3_title')}
+                                </h3>
+                                <p className="text-indigo-950 font-semibold text-sm leading-relaxed text-justify whitespace-pre-line">
+                                    {t('about_p3_desc').split('\n').map((line, i) => <span key={i} className="block mb-1">{line}</span>)}
+                                </p>
+                            </div>
+
+                            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+                                <p className="text-sm text-gray-500 mb-2">{t('contact_dev_more')}</p>
+                                <div className="flex justify-center text-black"><ContactBadge t={t} /></div>
+                            </div>
                         </div>
                     </Modal>
                 </div>
@@ -680,10 +780,11 @@
         };
 
         // --- الشاشة 2: الإعداد (Main) ---
-        const SetupScreen = ({ onComplete, config, setConfig, hasDraft, onLoadDraft, setHasDraft, isLocked, onResetScores, darkMode, toggleTheme, t, toggleLang, lang, user, trialStatus, profile, onLogout }) => {
+        const SetupScreen = ({ onComplete, config, setConfig, hasDraft, onLoadDraft, setHasDraft, isLocked, onResetScores, darkMode, toggleTheme, t, toggleLang, lang, user, trialStatus, profile, onLogout, canInstall, onInstallApp }) => {
             const [helpOpen, setHelpOpen] = useState(false);
             const [error, setError] = useState(null);
             const [timeLeft, setTimeLeft] = useState('');
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
             const startTour = () => {
                 const driver = window.driver.js.driver;
@@ -701,6 +802,24 @@
                     ]
                 });
                 driverObj.drive();
+            };
+
+            const handleShare = async () => {
+                const shareData = {
+                    title: t('title'),
+                    text: t('welcome_desc').split('\n')[0],
+                    url: window.location.href
+                };
+                
+                if (navigator.share) {
+                    try { await navigator.share(shareData); } catch (err) {}
+                } else {
+                    try {
+                        await navigator.clipboard.writeText(window.location.href);
+                        alert(t('link_copied'));
+                    } catch (err) { window.open(`https://wa.me/?text=${encodeURIComponent(shareData.text + ' ' + shareData.url)}`, '_blank'); }
+                }
+                setIsSidebarOpen(false);
             };
 
             useEffect(() => {
@@ -779,6 +898,78 @@
                 reader.readAsDataURL(file);
             };
             
+            const downloadTemplate = (type) => {
+                const wb = XLSX.utils.book_new();
+                let headers, data, filename;
+
+                if (type === 'items') {
+                    headers = [t('item_label'), t('domain_label')];
+                    data = [headers, [lang === 'ar' ? 'مثال: الالتزام بمواعيد الدوام' : 'Ex: Is he punctual?', lang === 'ar' ? 'الانضباط' : 'Behavior']];
+                    filename = lang === 'ar' ? "قالب_البنود.xlsx" : "Items_Template.xlsx";
+                } else {
+                    headers = [t('name_label'), t('branch_label')];
+                    data = [headers, [lang === 'ar' ? 'مثال: محمد أحمد' : 'Ex: John Doe', lang === 'ar' ? 'الفرع الرئيسي' : 'Main Branch']];
+                    filename = lang === 'ar' ? "قالب_الأسماء.xlsx" : "Names_Template.xlsx";
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                ws['!cols'] = [{ wch: 40 }, { wch: 20 }]; // عرض الأعمدة
+                
+                // تفعيل الاتجاه من اليمين لليسار في ملف الإكسل
+                if (lang === 'ar') {
+                    ws['!views'] = [{ rightToLeft: true }];
+                }
+
+                XLSX.utils.book_append_sheet(wb, ws, "Template");
+                XLSX.writeFile(wb, filename);
+            };
+
+            const loadDemoData = () => {
+                const demoItems = lang === 'ar' ? [
+                    { id: 1, main: 'هل يلتزم الموظف بمواعيد العمل الرسمية؟', sub: 'الانضباط' },
+                    { id: 2, main: 'هل ينجز المهام الموكلة إليه في الوقت المحدد؟', sub: 'الأداء' },
+                    { id: 3, main: 'هل يتعاون بشكل جيد مع زملائه في الفريق؟', sub: 'العمل الجماعي' },
+                    { id: 4, main: 'هل يقدم مقترحات لتطوير العمل؟', sub: 'الإبداع' },
+                    { id: 5, main: 'هل يتقبل التوجيهات والملاحظات بصدر رحب؟', sub: 'السلوك' }
+                ] : [
+                    { id: 1, main: 'Does the employee adhere to official working hours?', sub: 'Discipline' },
+                    { id: 2, main: 'Does he complete assigned tasks on time?', sub: 'Performance' },
+                    { id: 3, main: 'Does he cooperate well with team members?', sub: 'Teamwork' },
+                    { id: 4, main: 'Does he offer suggestions for work improvement?', sub: 'Creativity' },
+                    { id: 5, main: 'Does he accept guidance and feedback positively?', sub: 'Behavior' }
+                ];
+
+                const demoNames = lang === 'ar' ? [
+                    { id: 1, main: 'أحمد محمد علي', sub: 'الإدارة العامة' },
+                    { id: 2, main: 'سارة عبدالله', sub: 'الموارد البشرية' },
+                    { id: 3, main: 'خالد عمر', sub: 'المبيعات' },
+                    { id: 4, main: 'منى سعيد', sub: 'التسويق' }
+                ] : [
+                    { id: 1, main: 'Ahmed Mohamed', sub: 'General Management' },
+                    { id: 2, main: 'Sara Abdullah', sub: 'HR' },
+                    { id: 3, main: 'Khaled Omar', sub: 'Sales' },
+                    { id: 4, main: 'Mona Saeed', sub: 'Marketing' }
+                ];
+
+                setConfig({
+                    ...config,
+                    items: demoItems,
+                    names: demoNames,
+                    maxScore: 5,
+                    orgName: lang === 'ar' ? 'شركة المثال التقنية' : 'Example Tech Corp',
+                    evaluatorName: lang === 'ar' ? 'المدير العام' : 'General Manager'
+                });
+            };
+
+            const hasData = config.items.length > 0 || config.names.length > 0 || config.orgName || config.evaluatorName || config.logo;
+
+            const clearData = () => {
+                if (confirm(t('clear_confirm'))) {
+                    setConfig({ items: [], names: [], maxScore: 5, orgName: '', evaluatorName: '', logo: null });
+                    setError(null);
+                }
+            };
+
             const deleteDraft = () => {
                 if(confirm(t('delete_draft_confirm'))) {
                     localStorage.removeItem('eval_draft');
@@ -787,23 +978,69 @@
             };
 
             const validateAndStart = () => {
-                if (config.items.length === 0) return setError(t('error_items'));
-                if (config.names.length === 0) return setError(t('error_names'));
-                if (config.maxScore < 1 || config.maxScore > 10) return setError(t('error_max_score'));
+                if (config.items.length === 0) { setError(t('error_items')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+                if (config.names.length === 0) { setError(t('error_names')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+                if (config.maxScore < 1 || config.maxScore > 10) { setError(t('error_max_score')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
                 onComplete();
             };
 
             return (
                 <div className="min-h-screen bg-gray-50 dark:bg-gray-900 fade-in transition-colors duration-300">
+                    {/* Sidebar */}
+                    <div className={`fixed inset-0 z-50 flex justify-end ${isSidebarOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+                        <div className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
+                        <div className={`relative w-72 bg-slate-900/95 backdrop-blur-xl h-full shadow-2xl ${lang === 'ar' ? 'border-r' : 'border-l'} border-white/10 transition-transform duration-300 ease-in-out transform ${isSidebarOpen ? 'translate-x-0' : (lang === 'ar' ? '-translate-x-full' : 'translate-x-full')}`}>
+                            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                <h3 className="font-bold text-lg text-white">{t('settings')}</h3>
+                                <button onClick={() => setIsSidebarOpen(false)} className="text-white/70 hover:text-white transition-colors"><Icons.XCircle /></button>
+                            </div>
+                            <div className="p-4 space-y-2 overflow-y-auto h-[calc(100%-60px)]">
+                                {user && (
+                                    <div className="mb-6 p-4 bg-white/5 rounded-xl border border-white/10">
+                                        <div className="font-bold text-white text-lg">{user.name}</div>
+                                        <div className="text-xs text-gray-400 mt-1">{user.email}</div>
+                                    </div>
+                                )}
+                                <button onClick={() => { toggleLang(); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-blue-500/20 text-blue-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.Languages /></div>
+                                    <span>{t('lang_btn')}</span>
+                                </button>
+                                <button onClick={() => { toggleTheme(); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-purple-500/20 text-purple-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</div>
+                                    <span>{darkMode ? (lang === 'ar' ? "الوضع النهاري" : "Light Mode") : (lang === 'ar' ? "الوضع الليلي" : "Dark Mode")}</span>
+                                </button>
+                                <button onClick={() => { setHelpOpen(true); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-yellow-500/20 text-yellow-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.Help /></div>
+                                    <span>{t('help_guide')}</span>
+                                </button>
+                                <button onClick={handleShare} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-green-500/20 text-green-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.Share /></div>
+                                    <span>{t('share_app')}</span>
+                                </button>
+                                {canInstall && (
+                                    <button onClick={onInstallApp} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                        <div className="p-2 bg-teal-500/20 text-teal-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.Smartphone /></div>
+                                        <span>{t('install_app')}</span>
+                                    </button>
+                                )}
+                                <div className="border-t border-white/10 my-2 pt-2">
+                                    <button onClick={() => { onLogout(); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors font-semibold group">
+                                        <div className="p-2 bg-red-500/20 text-red-400 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.LogOut /></div>
+                                        <span>{t('logout')}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 shadow-lg p-4 flex justify-between items-center border-b border-white/10 backdrop-blur-md">
-                        <h2 className="text-xl font-bold text-white flex items-center gap-2 drop-shadow-md">
-                            <Icons.Home /> {t('setup_title')}
+                        <h2 className="text-lg md:text-xl font-bold text-white flex items-center gap-2 drop-shadow-md">
+                            <Icons.Home /> <span className="hidden sm:inline">{t('setup_title')}</span>
                         </h2>
                         
                         {/* عرض اسم المستخدم وحالته */}
                         {user && trialStatus && (
-                            <div className="hidden md:flex flex-col items-center mx-4">
-                                <span className="font-bold text-white text-sm">{user.name}</span>
+                            <div className="flex flex-col items-center mx-2 md:mx-4">
+                                <span className="font-bold text-white text-xs md:text-sm">{user.name}</span>
                                 <div className="mt-1 flex items-center gap-2">
                                     {trialStatus.isActive ? (
                                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-bold border border-green-200">
@@ -833,7 +1070,7 @@
 
                         {/* عرض حالة النسخة التجريبية للزوار (تخطي) */}
                         {!user && (
-                            <div className="hidden md:flex items-center gap-3 mx-4 fade-in">
+                            <div className="flex items-center gap-2 md:gap-3 mx-2 md:mx-4 fade-in">
                                 <div className="flex items-center gap-2 px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.1)]">
                                     <span className="relative flex h-2 w-2">
                                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
@@ -859,17 +1096,8 @@
                         )}
 
                         <div className="flex gap-2">
-                            <button onClick={toggleLang} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110 flex items-center gap-1 text-sm font-bold">
-                                <Icons.Languages className="w-4 h-4" /> {t('lang_btn')}
-                            </button>
-                            <button onClick={toggleTheme} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>
-                                {darkMode ? <Icons.Sun /> : <Icons.Moon />}
-                            </button>
-                            <button onClick={() => setHelpOpen(true)} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={t('help_guide')}>
-                                <Icons.Help />
-                            </button>
-                            <button onClick={onLogout} className="p-2 bg-red-500/20 text-red-200 rounded-full hover:bg-red-500/40 border border-red-500/30 transition-transform hover:scale-110" title={t('logout')}>
-                                <Icons.LogOut />
+                            <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110">
+                                <Icons.Menu />
                             </button>
                         </div>
                     </div>
@@ -895,6 +1123,15 @@
                             </div>
                         )}
 
+                        <div className="flex justify-end mb-4 gap-2">
+                            <button onClick={!hasData ? loadDemoData : null} disabled={hasData} className={`text-sm font-bold flex items-center gap-1 px-3 py-2 rounded-lg border transition-colors shadow-sm ${!hasData ? 'text-blue-600 hover:text-blue-800 bg-blue-50 border-blue-200 hover:bg-blue-100 cursor-pointer' : 'text-gray-400 bg-gray-100 border-gray-200 cursor-not-allowed'}`}>
+                                <Icons.Wand className="w-4 h-4" /> {t('load_demo_data')}
+                            </button>
+                            <button onClick={hasData ? clearData : null} disabled={!hasData} className={`p-2 rounded-lg shadow-sm transition-all duration-500 ${hasData ? 'text-red-500 hover:text-red-700 bg-white border border-red-200 hover:bg-red-50 hover:rotate-180 cursor-pointer' : 'text-gray-300 bg-gray-100 border border-gray-200 cursor-not-allowed'}`} title={t('clear_data')}>
+                                <Icons.Refresh />
+                            </button>
+                        </div>
+
                         <div className="grid md:grid-cols-2 gap-6">
                             {/* Step 1 */}
                             <div id="setup-step-1" className={`p-6 rounded-xl border-2 transition-all ${config.items.length > 0 ? 'border-green-500 bg-green-50 dark:bg-green-900/20 dark:border-green-600' : 'border-dashed border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600'}`}>
@@ -903,10 +1140,15 @@
                                     {config.items.length > 0 && <Icons.Check />}
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="flex items-center justify-center w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-100 border border-blue-200 transition">
-                                        <Icons.Upload /> <span className="mx-2">{t('upload_excel')}</span>
-                                        <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={(e) => handleFileUpload(e, 'items')} />
-                                    </label>
+                                    <div className="flex gap-2">
+                                        <label className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-100 border border-blue-200 transition">
+                                            <Icons.Upload /> <span className="mx-2">{t('upload_excel')}</span>
+                                            <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={(e) => handleFileUpload(e, 'items')} />
+                                        </label>
+                                        <button onClick={() => downloadTemplate('items')} className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 border border-gray-300 transition" title={t('download_template')}>
+                                            <Icons.Download />
+                                        </button>
+                                    </div>
                                     <p className="text-sm text-primary font-semibold mt-2 mb-1">{t('manual_entry')}</p>
                                     <DataEditorTable data={config.items} type="items" onChange={(newData) => setConfig({ ...config, items: newData })} t={t} />
                                 </div>
@@ -920,10 +1162,15 @@
                                     {config.names.length > 0 && <Icons.Check />}
                                 </div>
                                 <div className="space-y-3">
-                                    <label className="flex items-center justify-center w-full px-4 py-2 bg-blue-50 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-100 border border-blue-200 transition">
-                                        <Icons.Upload /> <span className="mx-2">{t('upload_excel')}</span>
-                                        <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={(e) => handleFileUpload(e, 'names')} />
-                                    </label>
+                                    <div className="flex gap-2">
+                                        <label className="flex-1 flex items-center justify-center px-4 py-2 bg-blue-50 text-blue-700 rounded-lg cursor-pointer hover:bg-blue-100 border border-blue-200 transition">
+                                            <Icons.Upload /> <span className="mx-2">{t('upload_excel')}</span>
+                                            <input type="file" accept=".xlsx, .xls, .csv" className="hidden" onChange={(e) => handleFileUpload(e, 'names')} />
+                                        </label>
+                                        <button onClick={() => downloadTemplate('names')} className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 border border-gray-300 transition" title={t('download_template')}>
+                                            <Icons.Download />
+                                        </button>
+                                    </div>
                                     <p className="text-sm text-primary font-semibold mt-2 mb-1">{t('manual_entry')}</p>
                                     <DataEditorTable data={config.names} type="names" onChange={(newData) => setConfig({ ...config, names: newData })} t={t} />
                                 </div>
@@ -1104,14 +1351,14 @@
 
                     {/* Header with Tools */}
                     <div className="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 shadow-lg sticky top-0 z-40 border-b border-white/10 backdrop-blur-md">
-                        <div className="container mx-auto max-w-5xl p-4 flex justify-between items-center relative">
-                            <div>
-                                <div className="text-sm font-semibold text-yellow-400 uppercase tracking-wider">
+                        <div className="container mx-auto max-w-5xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 relative">
+                            <div className="w-full md:w-auto text-center md:text-start">
+                                <div className="text-xs md:text-sm font-semibold text-yellow-400 uppercase tracking-wider">
                                     {t('domain')} {numberToText(currentDomainIndex)}: {currentItem.sub}
                                 </div>
-                                <h2 className="text-xl font-bold text-white drop-shadow-md">{currentIndex + 1}. {currentItem.main}</h2>
+                                <h2 className="text-lg md:text-xl font-bold text-white drop-shadow-md leading-tight">{currentIndex + 1}. {currentItem.main}</h2>
                             </div>
-                            <div className="flex gap-2 items-center">
+                            <div className="flex gap-2 items-center justify-center flex-wrap">
                                 <button onClick={toggleLang} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={t('lang_btn')}><Icons.Languages /></button>
                                 <button onClick={toggleTheme} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
                                 {showSaveHint && (
@@ -1269,6 +1516,7 @@
             const [selectedPerson, setSelectedPerson] = useState(null);
             const [isExporting, setIsExporting] = useState(false);
             const [showSummaries, setShowSummaries] = useState(false);
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
             
             // حساب النتائج
@@ -2198,6 +2446,41 @@
 
             return (
                 <div className="min-h-screen bg-gray-50 dark:bg-gray-900 fade-in transition-colors duration-300">
+                    {/* Sidebar for Results Screen */}
+                    <div className={`fixed inset-0 z-50 flex justify-end ${isSidebarOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+                        <div className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
+                        <div className={`relative w-72 bg-slate-900/95 backdrop-blur-xl h-full shadow-2xl ${lang === 'ar' ? 'border-r' : 'border-l'} border-white/10 transition-transform duration-300 ease-in-out transform ${isSidebarOpen ? 'translate-x-0' : (lang === 'ar' ? '-translate-x-full' : 'translate-x-full')}`}>
+                            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+                                <h3 className="font-bold text-lg text-white">{t('settings')}</h3>
+                                <button onClick={() => setIsSidebarOpen(false)} className="text-white/70 hover:text-white transition-colors"><Icons.XCircle /></button>
+                            </div>
+                            <div className="p-4 space-y-2 overflow-y-auto h-[calc(100%-60px)]">
+                                <div className="mb-4 pb-4 border-b border-white/10 space-y-2">
+                                    <button onClick={() => { setView('table'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-4 p-3 rounded-xl transition-colors font-semibold ${view === 'table' ? 'bg-blue-600 text-white' : 'hover:bg-white/10 text-gray-200'}`}>
+                                        <div className="p-2 bg-white/10 rounded-lg"><Icons.File /></div>
+                                        <span>{t('table_view')}</span>
+                                    </button>
+                                    <button onClick={() => { setView('analysis'); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-4 p-3 rounded-xl transition-colors font-semibold ${view === 'analysis' ? 'bg-blue-600 text-white' : 'hover:bg-white/10 text-gray-200'}`}>
+                                        <div className="p-2 bg-white/10 rounded-lg"><Icons.Chart /></div>
+                                        <span>{t('analysis_view')}</span>
+                                    </button>
+                                </div>
+                                <button onClick={() => { toggleTheme(); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-purple-500/20 text-purple-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">{darkMode ? <Icons.Sun /> : <Icons.Moon />}</div>
+                                    <span>{darkMode ? (lang === 'ar' ? "الوضع النهاري" : "Light Mode") : (lang === 'ar' ? "الوضع الليلي" : "Dark Mode")}</span>
+                                </button>
+                                <button onClick={() => { onBackToEdit(); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-yellow-500/20 text-yellow-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.Edit /></div>
+                                    <span>{t('edit_eval')}</span>
+                                </button>
+                                <button onClick={() => { onGoHome(); setIsSidebarOpen(false); }} className="w-full flex items-center gap-4 p-3 hover:bg-white/10 rounded-xl transition-colors text-gray-200 font-semibold group">
+                                    <div className="p-2 bg-gray-500/20 text-gray-300 rounded-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"><Icons.Home /></div>
+                                    <span>{t('home')}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="shadow-lg border-b border-white/10 no-print sticky top-0 z-30 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 backdrop-blur-md">
                         {/* Navigation Row */}
                         <div className="p-3">
@@ -2207,13 +2490,16 @@
                                     {view === 'table' ? t('results_title') : t('analysis_title')}
                                 </h2>
                                 <div className="flex gap-2">
-                                    <button onClick={() => setView('table')} className={`px-4 py-2 rounded-full font-bold transition-all hover:scale-105 ${view === 'table' ? 'bg-white text-blue-900 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}>{t('table_view')}</button>
-                                    <button onClick={() => setView('analysis')} className={`px-4 py-2 rounded-full font-bold transition-all hover:scale-105 ${view === 'analysis' ? 'bg-white text-blue-900 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}>{t('analysis_view')}</button>
-                                    <div className="w-px h-8 bg-white/20 mx-1"></div>
-                                    <button onClick={toggleLang} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={t('lang_btn')}><Icons.Languages /></button>
-                                    <button onClick={toggleTheme} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110" title={darkMode ? "الوضع النهاري" : "الوضع الليلي"}>{darkMode ? <Icons.Sun /> : <Icons.Moon />}</button>
-                                    <button onClick={onBackToEdit} className="p-2 bg-yellow-500/20 text-yellow-200 rounded-full hover:bg-yellow-500/40 border border-yellow-500/30 transition-transform hover:scale-110" title={t('edit_eval')}><Icons.Edit/></button>
-                                    <button onClick={onGoHome} className="p-2 bg-gray-500/20 text-gray-200 rounded-full hover:bg-gray-500/40 border border-gray-500/30 transition-transform hover:scale-110" title={t('home')}><Icons.Home/></button>
+                                    {/* أزرار التبديل السريع (تظهر فقط في الشاشات المتوسطة والكبيرة) */}
+                                    <div className="hidden md:flex gap-2">
+                                        <button onClick={() => setView('table')} className={`px-4 py-2 rounded-full font-bold transition-all hover:scale-105 ${view === 'table' ? 'bg-white text-blue-900 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}>{t('table_view')}</button>
+                                        <button onClick={() => setView('analysis')} className={`px-4 py-2 rounded-full font-bold transition-all hover:scale-105 ${view === 'analysis' ? 'bg-white text-blue-900 shadow-lg' : 'bg-white/10 text-white hover:bg-white/20'}`}>{t('analysis_view')}</button>
+                                    </div>
+                                    
+                                    {/* زر القائمة الجانبية */}
+                                    <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 backdrop-blur-sm transition-transform hover:scale-110">
+                                        <Icons.Menu />
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -2658,6 +2944,7 @@
             const [profile, setProfile] = useState(null);
             const [trialStatus, setTrialStatus] = useState(null);
             const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+            const [deferredPrompt, setDeferredPrompt] = useState(null);
 
             useEffect(() => {
                 if (darkMode) document.documentElement.classList.add('dark');
@@ -2671,6 +2958,22 @@
 
             const toggleTheme = () => setDarkMode(!darkMode);
             const toggleLang = () => setLang(prev => prev === 'ar' ? 'en' : 'ar');
+
+            useEffect(() => {
+                const handler = (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                };
+                window.addEventListener('beforeinstallprompt', handler);
+                return () => window.removeEventListener('beforeinstallprompt', handler);
+            }, []);
+
+            const handleInstallApp = async () => {
+                if (!deferredPrompt) return;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') setDeferredPrompt(null);
+            };
 
             const t = (key, params = {}) => {
                 let text = translations[lang][key] || key;
@@ -2807,7 +3110,7 @@
                     case 'welcome': return <WelcomeScreen onStart={handleStart} t={t} toggleLang={toggleLang} lang={lang} />;
                     case 'login': return <LoginScreen t={t} toggleLang={toggleLang} lang={lang} onSkip={() => setScreen('setup')} />;
                     case 'locked': return <LockedScreen trialStatus={trialStatus} t={t} toggleLang={toggleLang} lang={lang} onLogout={handleLogout} user={user} />;
-                    case 'setup': return <SetupScreen config={config} setConfig={setConfig} onComplete={() => setScreen('eval')} hasDraft={hasDraft} onLoadDraft={loadDraft} setHasDraft={setHasDraft} isLocked={Object.keys(scores).length > 0} onResetScores={() => setScores({})} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} lang={lang} user={user} trialStatus={trialStatus} profile={profile} onLogout={handleLogout} />;
+                    case 'setup': return <SetupScreen config={config} setConfig={setConfig} onComplete={() => setScreen('eval')} hasDraft={hasDraft} onLoadDraft={loadDraft} setHasDraft={setHasDraft} isLocked={Object.keys(scores).length > 0} onResetScores={() => setScores({})} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} lang={lang} user={user} trialStatus={trialStatus} profile={profile} onLogout={handleLogout} canInstall={!!deferredPrompt} onInstallApp={handleInstallApp} />;
                     case 'eval': return <EvaluationScreen config={config} initialScores={scores} onFinish={(finalScores) => { setScores(finalScores); setScreen('results'); }} onSaveDraft={saveDraft} onCancel={cancelAll} onBackToSetup={() => setScreen('setup')} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} />;
                     case 'results': return <ResultsAndAnalysis config={config} scores={scores} onBackToEdit={() => setScreen('eval')} onGoHome={() => setScreen('setup')} darkMode={darkMode} toggleTheme={toggleTheme} t={t} toggleLang={toggleLang} lang={lang} />;
                     default: return <WelcomeScreen t={t} toggleLang={toggleLang} lang={lang} />;
